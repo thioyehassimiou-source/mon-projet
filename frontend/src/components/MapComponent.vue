@@ -34,6 +34,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 import { LMap, LTileLayer, LMarker, LPopup } from "@vue-leaflet/vue-leaflet";
 
 const props = defineProps({
@@ -53,14 +54,16 @@ const props = defineProps({
 
 const emit = defineEmits(['marker-click', 'update:zoom', 'update:center']);
 
-const map = ref(null);
+const currentZoom = ref(props.zoom);
+const currentCenter = ref(props.center);
 
-// Fix Leaflet icons
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+const listingsWithCoords = computed(() => {
+  return props.listings
+    .filter(l => l.exigences?.gps?.lat && l.exigences?.gps?.lng)
+    .map(l => ({
+      ...l,
+      gps: l.exigences.gps
+    }));
 });
 
 const formatPrice = (price) => {
@@ -69,7 +72,7 @@ const formatPrice = (price) => {
     currency: 'GNF',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
-  }).format(price);
+  }).format(price).trim();
 };
 
 const onMarkerClick = (listing) => {

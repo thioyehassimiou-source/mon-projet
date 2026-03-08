@@ -5,7 +5,7 @@
       <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         <router-link to="/" class="flex items-center gap-3 active:scale-95 transition-all">
           <div class="size-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
-            <span class="material-symbols-outlined text-2xl">real_estate_agent</span>
+            <span class="material-symbols-outlined text-2xl notranslate" translate="no">real_estate_agent</span>
           </div>
           <span class="text-xl font-black tracking-tight text-gray-900 dark:text-white">GuineaLogement</span>
         </router-link>
@@ -25,10 +25,11 @@
 
         <div class="flex items-center gap-4">
           <button @click="toggleTheme" class="size-10 rounded-xl bg-surface-warm dark:bg-neutral-800 flex items-center justify-center text-primary border border-black/5 active:scale-90 transition-all">
-            <span class="material-symbols-outlined text-[20px]">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
+            <span class="material-symbols-outlined text-[20px] notranslate" translate="no">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
           </button>
           
           <button 
+            v-if="userRole !== 'locataire'"
             @click="handleMainAction"
             class="bg-primary text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
           >
@@ -39,7 +40,7 @@
     </header>
 
     <!-- Mobile App Bar (Hidden on Desktop) -->
-    <header v-if="!$route.meta.hideHeader" class="md:hidden sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 ios-blur px-4 pt-6 pb-2 transition-all">
+    <header v-if="!$route.meta.hideHeader" class="md:hidden sticky top-0 z-50 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-xl px-4 pt-8 pb-4 transition-all border-b border-neutral-100 dark:border-neutral-800">
       <div class="flex items-center justify-between mb-4">
         <div class="flex flex-col">
           <span class="text-[10px] font-bold text-primary/70 uppercase tracking-widest">Bienvenue en Guinée</span>
@@ -49,10 +50,10 @@
         </div>
         <div class="flex gap-2">
           <button @click="toggleTheme" class="flex size-10 items-center justify-center rounded-full bg-white dark:bg-neutral-800 shadow-sm border border-neutral-100 dark:border-neutral-700 active:scale-90 transition-all">
-            <span class="material-symbols-outlined text-primary text-[22px]">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
+            <span class="material-symbols-outlined text-primary text-[22px] notranslate" translate="no">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
           </button>
           <button class="flex size-10 items-center justify-center rounded-full bg-white dark:bg-neutral-800 shadow-sm border border-neutral-100 dark:border-neutral-700 active:scale-90 transition-all">
-            <span class="material-symbols-outlined text-primary text-[22px]">notifications</span>
+            <span class="material-symbols-outlined text-primary text-[22px] notranslate" translate="no">notifications</span>
           </button>
         </div>
       </div>
@@ -60,7 +61,7 @@
       <!-- Mobile Quick Search Bar -->
       <div v-if="$route.path === '/'" class="relative flex items-center gap-2 mb-2 animate-fade-in">
         <div class="flex-1 flex items-center bg-white dark:bg-neutral-800 rounded-2xl px-4 py-3 shadow-sm border border-neutral-50 dark:border-neutral-700">
-          <span class="material-symbols-outlined text-neutral-400 mr-2 text-[20px]">search</span>
+          <span class="material-symbols-outlined text-neutral-400 mr-2 text-[20px] notranslate" translate="no">search</span>
           <input 
             v-model="quickSearch"
             @keyup.enter="handleSearch"
@@ -70,7 +71,7 @@
           />
         </div>
         <button @click="handleSearch" class="bg-primary p-3 rounded-2xl text-white flex items-center justify-center shadow-lg shadow-primary/20 active:scale-95 transition-all">
-          <span class="material-symbols-outlined text-[22px]">tune</span>
+          <span class="material-symbols-outlined text-[22px] notranslate" translate="no">tune</span>
         </button>
       </div>
     </header>
@@ -94,16 +95,16 @@
           class="flex flex-col items-center gap-1 transition-all"
           :class="$route.path === item.path ? 'text-primary' : 'text-neutral-400 dark:text-neutral-500'"
         >
-          <span class="material-symbols-outlined text-[26px]" :style="$route.path === item.path ? 'font-variation-settings: \'FILL\' 1' : ''">
+          <span class="material-symbols-outlined text-[26px] notranslate" translate="no" :style="$route.path === item.path ? 'font-variation-settings: \'FILL\' 1' : ''">
             {{ item.icon }}
           </span>
           <span class="text-[9px] uppercase tracking-wider">{{ item.name }}</span>
         </router-link>
 
         <!-- Middle FAB -->
-        <div class="relative -top-6">
+        <div v-if="userRole !== 'locataire'" class="relative -top-6">
           <button @click="handleMainAction" class="group size-16 bg-primary text-white rounded-full shadow-2xl shadow-primary/40 flex items-center justify-center border-4 border-background-light dark:border-background-dark hover:scale-110 active:scale-95 transition-all">
-            <span class="material-symbols-outlined text-4xl group-hover:rotate-90 transition-transform">add</span>
+            <span class="material-symbols-outlined text-4xl group-hover:rotate-90 transition-transform notranslate" translate="no">add</span>
           </button>
         </div>
 
@@ -114,7 +115,7 @@
           class="flex flex-col items-center gap-1 transition-all"
           :class="$route.path === item.path ? 'text-primary' : 'text-neutral-400 dark:text-neutral-500'"
         >
-          <span class="material-symbols-outlined text-[26px]" :style="$route.path === item.path ? 'font-variation-settings: \'FILL\' 1' : ''">
+          <span class="material-symbols-outlined text-[26px] notranslate" translate="no" :style="$route.path === item.path ? 'font-variation-settings: \'FILL\' 1' : ''">
             {{ item.icon }}
           </span>
           <span class="text-[9px] uppercase tracking-wider">{{ item.name }}</span>
@@ -129,7 +130,7 @@
           'px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 ios-blur border-l-4',
           notification.type === 'success' ? 'bg-primary/90 border-accent-gold text-white' : 'bg-red-600/90 border-white text-white'
         ]">
-          <span class="material-symbols-outlined">
+          <span class="material-symbols-outlined notranslate" translate="no">
             {{ notification.type === 'success' ? 'check_circle' : 'error' }}
           </span>
           <p class="font-bold text-sm">{{ notification.message }}</p>
@@ -183,6 +184,7 @@ const updateTheme = () => {
 
 // Auth
 const isAuthenticated = computed(() => authStore.isAuthenticated);
+const userRole = computed(() => authStore.user?.role?.toLowerCase() || 'locataire');
 
 const handleSearch = () => {
   if (!quickSearch.value.trim()) return;

@@ -7,9 +7,33 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 1️⃣ Configuration
-app.use(cors());
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174',
+    process.env.FRONTEND_URL,
+    'https://guinealogement.app'
+].filter(Boolean);
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Service des fichiers statiques (Uploads) - Aligné avec /api pour simplicité frontend
+const path = require('path');
+app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 3️⃣ Routes API principales
 
@@ -45,6 +69,7 @@ const listingRoutes = require('./routes/listingRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const aiRoutes = require('./routes/aiRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/utilisateurs', userRoutes);
@@ -52,6 +77,7 @@ app.use('/api/logements', listingRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/paiements', paymentRoutes);
 app.use('/api/ia', aiRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Gestion des erreurs globale
 app.use((err, req, res, next) => {

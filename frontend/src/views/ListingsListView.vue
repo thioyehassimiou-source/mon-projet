@@ -10,24 +10,26 @@
        </div>
        
        <!-- Filter Categories -->
-       <div class="flex gap-4 overflow-x-auto hide-scrollbar sm:justify-center">
-         <button 
-           v-for="cat in categories" 
-           :key="cat.label" 
-           class="flex flex-col items-center gap-2 group transition-all"
-           @click="activeCat = cat.label"
-         >
-           <div :class="[
-             'size-14 rounded-2xl flex items-center justify-center transition-all border',
-             activeCat === cat.label 
-               ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' 
-               : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-500'
-           ]">
-             <span class="material-symbols-outlined text-2xl" :style="activeCat === cat.label ? 'font-variation-settings: \'FILL\' 1' : ''">{{ cat.icon }}</span>
-           </div>
-           <span :class="['text-[11px] font-black uppercase tracking-widest transition-colors', activeCat === cat.label ? 'text-primary' : 'text-slate-400']">{{ cat.label }}</span>
-         </button>
-       </div>
+        <div class="flex gap-4 overflow-x-auto hide-scrollbar sm:justify-center">
+          <button 
+            v-for="cat in categories" 
+            :key="cat.label" 
+            class="flex flex-col items-center gap-2 group transition-all"
+            @click="activeCat = cat.label"
+          >
+            <div :class="[
+              'size-14 rounded-2xl flex items-center justify-center transition-all border',
+              activeCat === cat.label 
+                ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' 
+                : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-500'
+            ]">
+              <span class="material-symbols-outlined text-2xl" :style="activeCat === cat.label ? 'font-variation-settings: \'FILL\' 1' : ''">{{ cat.icon }}</span>
+            </div>
+            <span :class="['text-[11px] font-black uppercase tracking-widest transition-colors', activeCat === cat.label ? 'text-primary' : 'text-slate-400']">
+              {{ cat.name || cat.label }}
+            </span>
+          </button>
+        </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 py-8">
@@ -53,10 +55,16 @@
         >
           <div class="relative h-56 overflow-hidden">
             <img :src="getImage(l)" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-            <div class="absolute top-4 left-4 flex gap-2">
-               <span v-if="l.is_premium" class="bg-primary text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg">Premium</span>
-               <span class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-slate-900 dark:text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">Nouveau</span>
-            </div>
+             <div class="absolute top-4 left-4 flex flex-col gap-2">
+                <span v-if="l.is_premium" class="bg-primary text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg w-fit">Premium</span>
+                <span :class="[
+                  'text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm w-fit',
+                  l.statut === 'disponible' ? 'bg-emerald-500 text-white' : 
+                  l.statut === 'en_attente' ? 'bg-amber-500 text-white' : 'bg-slate-500 text-white'
+                ]">
+                  {{ l.statut === 'en_attente' ? 'En attente' : 'Disponible' }}
+                </span>
+             </div>
             <div class="absolute bottom-4 right-4 flex gap-2">
                <button v-if="canManage(l)" @click.stop="onEdit(l.id)" class="size-10 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md flex items-center justify-center text-primary shadow-lg active:scale-90 transition-transform">
                   <span class="material-symbols-outlined text-xl">edit_square</span>
@@ -129,14 +137,21 @@ const deleteTarget = ref(null);
 const confirmMessage = ref('');
 const activeCat = ref('Tout');
 
-const listings = computed(() => listingsStore.listings.filter(l => l.is_active !== false));
+const listings = computed(() => {
+  let list = listingsStore.userListings || [];
+  if (activeCat.value !== 'Tout') {
+    list = list.filter(l => l.exigences?.type?.toLowerCase() === activeCat.value.toLowerCase());
+  }
+  return list;
+});
 
 const categories = [
   { label: 'Tout', icon: 'grid_view' },
-  { label: 'Appartements', icon: 'apartment' },
-  { label: 'Villas', icon: 'villa' },
-  { label: 'Studios', icon: 'meeting_room' },
-  { label: 'Terrains', icon: 'landscape' }
+  { label: 'apartment', name: 'Appartements', icon: 'apartment' },
+  { label: 'villa', name: 'Villas', icon: 'villa' },
+  { label: 'studio', name: 'Studios', icon: 'meeting_room' },
+  { label: 'chambre', name: 'Chambres', icon: 'bed' },
+  { label: 'concession', name: 'Concessions', icon: 'home_work' }
 ];
 
 function formatPrice(price) {
@@ -181,7 +196,7 @@ async function onDeleteConfirmed() {
 }
 
 onMounted(async () => {
-  await listingsStore.fetchListings({ is_active: true });
+  await listingsStore.fetchUserListings();
 });
 </script>
 

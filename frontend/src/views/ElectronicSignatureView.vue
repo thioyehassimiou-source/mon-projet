@@ -230,7 +230,7 @@
               </div>
               <div class="flex-1">
                 <p class="text-[9px] font-black uppercase text-primary/60 tracking-widest mb-1.5">Propriétaire (Bailleur)</p>
-                <p class="text-base font-black text-slate-900 dark:text-white">M. Mamadou SYLLA</p>
+                <p class="text-base font-black text-slate-900 dark:text-white">Bailleur (Propriétaire)</p>
                 <div class="mt-3 flex items-center gap-2 text-[10px] font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 rounded-lg w-fit">
                   <span class="material-symbols-outlined text-[16px]">check_circle</span>
                   <span class="uppercase tracking-widest">Identité vérifiée</span>
@@ -243,7 +243,7 @@
               </div>
               <div class="flex-1">
                 <p class="text-[9px] font-black uppercase text-primary/60 tracking-widest mb-1.5">Locataire (Preneur)</p>
-                <p class="text-base font-black text-slate-900 dark:text-white">Mme Aminata CONDE</p>
+                <p class="text-base font-black text-slate-900 dark:text-white">Locataire (Preneur)</p>
                 <div class="mt-3 flex items-center gap-2 text-[10px] font-black text-primary bg-white/80 dark:bg-slate-900/80 px-3 py-1.5 rounded-lg w-fit border border-primary/10 shadow-sm">
                   <span class="material-symbols-outlined text-[16px] animate-pulse">pending</span>
                   <span class="uppercase tracking-widest">En attente de signature</span>

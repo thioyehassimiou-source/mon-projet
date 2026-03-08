@@ -69,6 +69,17 @@
             </div>
           </div>
 
+          <div v-if="form.user_type !== 'tenant'" class="space-y-5 animate-fade-in">
+            <div class="p-4 bg-primary/5 rounded-2xl border border-primary/10">
+              <p class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Vérification requise</p>
+              <p class="text-[11px] text-slate-500 leading-relaxed font-bold">Pour publier des annonces, nous devons vérifier votre identité conformément à la loi guinéenne.</p>
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">N° de Pièce d'Identité (CNI/Passport)</label>
+              <input v-model="form.id_number" required type="text" class="w-full h-14 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-primary focus:border-primary transition-all px-4 text-sm font-semibold shadow-sm" placeholder="Ex: GNF 123 456 789" />
+            </div>
+          </div>
+
           <div class="space-y-2">
             <label class="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Mot de passe</label>
             <input v-model="form.password" required type="password" class="w-full h-14 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-primary focus:border-primary transition-all px-4 text-sm font-semibold shadow-sm" placeholder="••••••••" />
@@ -93,11 +104,22 @@
           </div>
         </form>
 
-        <div class="pt-6 text-center">
-          <p class="text-slate-500 dark:text-slate-400 text-sm font-bold">
-            Déjà un compte ? 
-            <router-link to="/login" class="text-primary ml-1 hover:underline">Se connecter</router-link>
-          </p>
+        <!-- Social Login (Mock) -->
+        <div class="space-y-3">
+          <div class="relative py-4">
+            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-100 dark:border-slate-800"></div></div>
+            <div class="relative flex justify-center text-[10px] uppercase font-black tracking-widest"><span class="bg-background-light dark:bg-background-dark px-4 text-slate-400">Ou continuer avec</span></div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <button type="button" @click="showComingSoon" class="h-14 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 shadow-sm">
+              <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="size-5" />
+              <span class="text-[10px] font-black uppercase tracking-widest">Google</span>
+            </button>
+            <button type="button" @click="showComingSoon" class="h-14 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 shadow-sm">
+              <img src="https://www.svgrepo.com/show/445327/apple-logo.svg" class="size-5 dark:invert" />
+              <span class="text-[10px] font-black uppercase tracking-widest">Apple</span>
+            </button>
+          </div>
         </div>
       </div>
     </main>
@@ -117,8 +139,7 @@ const isLoading = ref(false);
 
 const userTypes = [
   { label: 'Locataire', value: 'tenant' },
-  { label: 'Proprio', value: 'owner' },
-  { label: 'Agence', value: 'agency' }
+  { label: 'Proprio', value: 'owner' }
 ];
 
 const form = reactive({
@@ -128,6 +149,7 @@ const form = reactive({
   last_name: '',
   phone: '',
   user_type: 'tenant',
+  id_number: '',
   password: '',
   password_confirm: '',
   agree_terms: false
@@ -168,5 +190,9 @@ const handleSubmit = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const showComingSoon = () => {
+  alert("Cette fonctionnalité de connexion sociale sera disponible très prochainement !");
 };
 </script>

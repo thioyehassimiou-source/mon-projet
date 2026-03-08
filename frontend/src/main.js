@@ -32,6 +32,9 @@ import AdminAnalyticsView from './views/AdminAnalyticsView.vue';
 import AdminAntiFraudView from './views/AdminAntiFraudView.vue';
 import AdminAntiFraudConfigView from './views/AdminAntiFraudConfigView.vue';
 
+import PaymentSuccessView from './views/PaymentSuccessView.vue';
+import PaymentCancelView from './views/PaymentCancelView.vue';
+
 // Configuration des routes
 const routes = [
   {
@@ -39,6 +42,18 @@ const routes = [
     name: 'home',
     component: HomeView,
     meta: { title: 'Accueil' }
+  },
+  {
+    path: '/payment-success',
+    name: 'payment-success',
+    component: PaymentSuccessView,
+    meta: { title: 'Paiement Réussi', hideHeader: true }
+  },
+  {
+    path: '/payment-cancel',
+    name: 'payment-cancel',
+    component: PaymentCancelView,
+    meta: { title: 'Paiement Annulé', hideHeader: true }
   },
   {
     path: '/map',
@@ -247,6 +262,11 @@ router.beforeEach(async (to, from, next) => {
         name: 'login',
         query: { redirect: to.fullPath }
       });
+    }
+
+    // Vérifier le rôle admin pour les routes d'administration
+    if (to.path.startsWith('/admin') && authStore.user?.role !== 'admin') {
+      return next({ name: 'home' });
     }
   }
 

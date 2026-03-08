@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Public+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Manrope:wght@300;400;500;600;700;800&family=Public+Sans:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
 @tailwind base;
@@ -41,4 +41,21 @@ html,
 body,
 #app {
   height: 100%;
+}
+
+/* Protection contre Google Translate pour les icônes */
+.material-symbols-outlined {
+  @apply notranslate shrink-0 inline-block;
+  unicode-bidi: isolate;
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+/* Empêche l'explosion de taille si Google Translate injecte des balises <font> */
+.notranslate font {
+  display: inline !important;
+  font-size: inherit !important;
+  font-family: inherit !important;
+  vertical-align: inherit !important;
 }

@@ -25,7 +25,7 @@
           <div v-for="(img, index) in listing.images" :key="index" class="flex-none w-full snap-start px-4">
             <div class="aspect-[4/3] w-full rounded-xl overflow-hidden bg-zinc-200 dark:bg-zinc-800 relative">
               <img 
-                :src="img.full_url || img.url" 
+                :src="typeof img === 'string' ? img : (img.full_url || img.url)" 
                 class="absolute inset-0 w-full h-full object-cover" 
                 @error="handleImageError"
               />
@@ -45,13 +45,17 @@
       <!-- Header Content -->
       <section class="px-4 mt-6">
         <div class="flex items-center gap-2 mb-2">
-          <span v-if="listing.is_verified" class="bg-accent-gold/20 text-[#8b6e15] dark:text-accent-gold text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Annonce Vérifiée</span>
-          <span v-if="isNew" class="bg-primary/10 text-primary dark:text-primary/80 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Nouveau</span>
+          <span v-if="listing.is_premium" class="bg-accent-gold text-black text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-tighter shadow-lg">Premium</span>
+          <span v-if="listing.is_verified" class="bg-primary text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-tighter shadow-lg flex items-center gap-1">
+            <span class="material-symbols-outlined text-[10px] font-black">check</span>
+            Vérifié
+          </span>
+          <span v-if="isNew" class="bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm">Nouveau</span>
         </div>
-        <h1 class="text-3xl font-bold leading-tight mb-2">{{ listing.title }}</h1>
+        <h1 class="text-3xl font-bold leading-tight mb-2">{{ listing.titre }}</h1>
         <div class="flex items-center gap-1 text-zinc-500 dark:text-zinc-400 text-sm mb-4">
           <span class="material-symbols-outlined text-sm">location_on</span>
-          <span>{{ listing.address }}, {{ listing.neighborhood }}, {{ listing.city }}</span>
+          <span>{{ listing.localisation }}</span>
         </div>
         <div class="text-primary dark:text-primary/90 text-2xl font-bold">
           {{ formatPrice(listing.price) }} <span class="text-sm font-medium text-zinc-500">/ mois</span>
@@ -61,21 +65,21 @@
       <!-- Quick Stats Chips -->
       <section class="mt-6 px-4">
         <div class="flex gap-3 overflow-x-auto no-scrollbar">
-          <div v-if="listing.bedrooms" class="flex flex-col items-center justify-center min-w-[80px] h-20 bg-white dark:bg-zinc-800/50 rounded-xl border border-black/5 dark:border-white/5">
+          <div v-if="listing.exigences?.chambres" class="flex flex-col items-center justify-center min-w-[80px] h-20 bg-white dark:bg-zinc-800/50 rounded-xl border border-black/5 dark:border-white/5">
             <span class="material-symbols-outlined text-primary mb-1">bed</span>
-            <span class="text-xs font-bold">{{ listing.bedrooms }} Ch.</span>
+            <span class="text-xs font-bold">{{ listing.exigences.chambres }} Ch.</span>
           </div>
-          <div v-if="listing.bathrooms" class="flex flex-col items-center justify-center min-w-[80px] h-20 bg-white dark:bg-zinc-800/50 rounded-xl border border-black/5 dark:border-white/5">
+          <div v-if="listing.exigences?.salles_de_bain" class="flex flex-col items-center justify-center min-w-[80px] h-20 bg-white dark:bg-zinc-800/50 rounded-xl border border-black/5 dark:border-white/5">
             <span class="material-symbols-outlined text-primary mb-1">bathtub</span>
-            <span class="text-xs font-bold">{{ listing.bathrooms }} Sdb.</span>
+            <span class="text-xs font-bold">{{ listing.exigences.salles_de_bain }} Sdb.</span>
           </div>
-          <div v-if="listing.surface_area" class="flex flex-col items-center justify-center min-w-[80px] h-20 bg-white dark:bg-zinc-800/50 rounded-xl border border-black/5 dark:border-white/5">
+          <div v-if="listing.exigences?.surface" class="flex flex-col items-center justify-center min-w-[80px] h-20 bg-white dark:bg-zinc-800/50 rounded-xl border border-black/5 dark:border-white/5">
             <span class="material-symbols-outlined text-primary mb-1">square_foot</span>
-            <span class="text-xs font-bold">{{ listing.surface_area }} m²</span>
+            <span class="text-xs font-bold">{{ listing.exigences.surface }} m²</span>
           </div>
-          <div v-if="listing.property_type" class="flex flex-col items-center justify-center min-w-[80px] h-20 bg-white dark:bg-zinc-800/50 rounded-xl border border-black/5 dark:border-white/5">
+          <div v-if="listing.exigences?.type" class="flex flex-col items-center justify-center min-w-[80px] h-20 bg-white dark:bg-zinc-800/50 rounded-xl border border-black/5 dark:border-white/5">
             <span class="material-symbols-outlined text-primary mb-1">home</span>
-            <span class="text-xs font-bold uppercase text-[9px]">{{ getPropertyTypeLabel(listing.property_type) }}</span>
+            <span class="text-xs font-bold uppercase text-[9px]">{{ getPropertyTypeLabel(listing.exigences.type) }}</span>
           </div>
         </div>
       </section>
@@ -137,7 +141,7 @@
            </div>
            <!-- Local text hint -->
            <div class="absolute bottom-2 left-2 bg-white/80 dark:bg-black/40 backdrop-blur-sm px-2 py-1 rounded text-[10px] uppercase font-black">
-             {{ listing.neighborhood }}, {{ listing.city }}
+             {{ listing.localisation }}
            </div>
         </div>
       </section>
@@ -182,9 +186,9 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useListingsStore } from '@/stores/listings';
-import { listingService, paymentService } from '@/services/api-fetch';
 import { useAuthStore } from '@/stores/auth';
 import { useMessagingStore } from '@/stores/messaging';
+import { listingService, paymentService } from '@/services/api-fetch';
 
 const route = useRoute();
 const router = useRouter();
@@ -211,13 +215,20 @@ const hasAmenities = computed(() => {
          listing.value?.near_transport;
 });
 
+const mainImage = computed(() => {
+  const img = listing.value?.images?.[0];
+  if (!img) return 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80';
+  return typeof img === 'string' ? img : (img.full_url || img.url);
+});
+
 const formatPrice = (price) => {
+  if (!price) return '0 GNF';
   return new Intl.NumberFormat('fr-GN', {
     style: 'currency',
     currency: 'GNF',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
-  }).format(price).replace('GNF', 'GNF').trim();
+  }).format(price).trim();
 };
 
 const getPropertyTypeLabel = (type) => {
@@ -245,7 +256,7 @@ const contactOwner = async () => {
     return;
   }
   
-  const result = await messagingStore.startConversationAction(listing.value.id);
+  const result = await messagingStore.startConversationAction(listing.value.id, listing.value.owner_id);
   if (result.success) {
     router.push('/messages');
   } else {
@@ -299,7 +310,7 @@ const openInMaps = () => {
 };
 
 const handleImageError = (event) => {
-  event.target.src = 'http://localhost:8000/static/placeholder-house.svg';
+  event.target.src = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80';
 };
 
 const loadData = async (id) => {

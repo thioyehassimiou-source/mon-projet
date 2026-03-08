@@ -8,7 +8,11 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     role VARCHAR(50) CHECK (role IN ('admin', 'proprietaire', 'locataire')) DEFAULT 'locataire',
+    phone VARCHAR(30),
     photo VARCHAR(255),
+    id_number VARCHAR(100),
+    id_document VARCHAR(255),
+    is_verified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -22,6 +26,8 @@ CREATE TABLE IF NOT EXISTS logements (
     statut VARCHAR(50) DEFAULT 'disponible', -- disponible, loué, suspendu, actif
     images TEXT[],
     exigences JSONB DEFAULT '{}',
+    is_premium BOOLEAN DEFAULT FALSE,
+    is_verified BOOLEAN DEFAULT FALSE,
     owner_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -47,7 +47,7 @@
     </div>
 
     <!-- Main Content Area -->
-    <main class="flex-1 p-4 max-w-md mx-auto w-full mb-24">
+    <main class="flex-1 p-4 max-w-md mx-auto w-full mb-40">
       <div class="space-y-8">
         <!-- Step Header -->
         <div class="space-y-1">
@@ -430,18 +430,17 @@ const handleSubmit = async () => {
     const payload = {
       titre: form.title,
       description: form.description,
-      type_logement: form.property_type,
-      prix: form.price,
+      price: form.price,
       localisation: `${form.neighborhood}, ${form.city}`,
-      surface: form.surface_area,
-      id_proprietaire: authStore.user?.id,
       exigences: {
+        type: form.property_type,
         chambres: form.bedrooms,
         salles_de_bain: form.bathrooms,
+        surface: form.surface_area,
         conditions: form.requirements,
         amenities: form.amenities
       },
-      // Mocking image URLs for display
+      owner_id: authStore.user?.id,
       images: previews.value.length > 0 ? previews.value : ['https://images.unsplash.com/photo-1582407947304-fd86f028f716?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80']
     };
 

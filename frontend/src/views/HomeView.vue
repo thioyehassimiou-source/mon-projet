@@ -2,12 +2,12 @@
   <div class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen pb-24">
     <!-- Hero Section -->
     <section class="max-w-md mx-auto px-4 pt-10 pb-8 text-center sm:max-w-2xl sm:text-left">
-      <h2 class="text-3xl font-black leading-tight mb-4 md:text-5xl md:mb-8 text-slate-900 dark:text-white">Trouvez votre futur chez-vous en Guinée</h2>
+      <h2 class="text-3xl font-black leading-tight mb-4 md:text-5xl md:mb-8 text-slate-900 dark:text-white">Découvrez votre prochain foyer en toute simplicité</h2>
       
       <!-- AI Search Bar -->
       <div class="relative group max-w-2xl mx-auto sm:mx-0">
         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <span class="material-symbols-outlined text-primary">auto_awesome</span>
+          <span class="material-symbols-outlined text-primary notranslate" translate="no">auto_awesome</span>
         </div>
         <input 
           v-model="searchQuery"
@@ -20,7 +20,7 @@
           @click="handleAISearch"
           class="absolute right-2 top-2 bottom-2 bg-primary text-white px-5 rounded-xl font-bold flex items-center gap-2 hover:bg-primary/90 active:scale-95 transition-all shadow-md shadow-primary/10"
         >
-          <span class="material-symbols-outlined text-sm">search</span>
+          <span class="material-symbols-outlined text-sm notranslate" translate="no">search</span>
           <span class="hidden sm:inline">Rechercher</span>
         </button>
       </div>
@@ -46,7 +46,7 @@
                 : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-400 group-hover:bg-slate-50 dark:group-hover:bg-slate-750'
             ]"
           >
-            <span class="material-symbols-outlined text-2xl" :style="selectedCategory === cat.type ? 'font-variation-settings: \'FILL\' 1' : ''">{{ cat.icon }}</span>
+            <span class="material-symbols-outlined text-2xl notranslate" translate="no" :style="selectedCategory === cat.type ? 'font-variation-settings: \'FILL\' 1' : ''">{{ cat.icon }}</span>
           </div>
           <span :class="['text-[11px] font-bold tracking-tight', selectedCategory === cat.type ? 'text-primary dark:text-slate-100' : 'text-slate-500']">{{ cat.name }}</span>
         </button>
@@ -59,7 +59,7 @@
         <h3 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Annonces prioritaires</h3>
         <router-link to="/search" class="text-primary dark:text-slate-300 font-bold text-sm flex items-center gap-1 hover:underline">
           Voir tout
-          <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          <span class="material-symbols-outlined text-sm notranslate" translate="no">arrow_forward</span>
         </router-link>
       </div>
 
@@ -85,7 +85,8 @@
               class="absolute top-4 right-4 w-10 h-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-full flex items-center justify-center text-slate-800 dark:text-white shadow-lg active:scale-90 transition-transform"
             >
               <span 
-                :class="['material-symbols-outlined text-xl', listing.is_favorited ? 'fill-1 text-red-500' : '']"
+                :class="['material-symbols-outlined text-xl notranslate', listing.is_favorited ? 'fill-1 text-red-500' : '']"
+                translate="no"
               >
                 favorite
               </span>
@@ -96,7 +97,7 @@
               <div class="flex-1 min-w-0">
                 <h4 class="font-black text-lg text-slate-900 dark:text-white truncate tracking-tight">{{ listing.titre }}</h4>
                 <div class="flex items-center text-slate-500 dark:text-slate-400 text-xs font-semibold mt-1">
-                  <span class="material-symbols-outlined text-sm mr-1 text-primary">location_on</span>
+                  <span class="material-symbols-outlined text-sm mr-1 text-primary notranslate" translate="no">location_on</span>
                   {{ listing.localisation }}
                 </div>
               </div>
@@ -108,15 +109,15 @@
             
             <div class="grid grid-cols-3 gap-2 py-4 border-t border-slate-50 dark:border-slate-700/50">
               <div class="flex flex-col items-center gap-1">
-                <span class="material-symbols-outlined text-primary text-xl">bed</span>
+                <span class="material-symbols-outlined text-primary text-xl notranslate" translate="no">bed</span>
                 <span class="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase">{{ listing.exigences?.chambres || 0 }} CH</span>
               </div>
               <div class="flex flex-col items-center gap-1 border-x border-slate-50 dark:border-slate-700/50">
-                <span class="material-symbols-outlined text-primary text-xl">bathtub</span>
+                <span class="material-symbols-outlined text-primary text-xl notranslate" translate="no">bathtub</span>
                 <span class="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase">{{ listing.exigences?.salles_de_bain || 0 }} SDB</span>
               </div>
               <div class="flex flex-col items-center gap-1">
-                <span class="material-symbols-outlined text-primary text-xl">square_foot</span>
+                <span class="material-symbols-outlined text-primary text-xl notranslate" translate="no">square_foot</span>
                 <span class="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase">{{ listing.exigences?.surface || 0 }} m²</span>
               </div>
             </div>
@@ -131,7 +132,7 @@
         <!-- Empty state -->
         <div v-if="!isLoading && premiumListings.length === 0" class="col-span-full py-16 text-center bg-white dark:bg-slate-800 rounded-3xl border border-slate-50 dark:border-slate-800 shadow-sm">
           <div class="w-16 h-16 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span class="material-symbols-outlined text-slate-400 text-3xl">sentiment_dissatisfied</span>
+            <span class="material-symbols-outlined text-slate-400 text-3xl notranslate" translate="no">sentiment_dissatisfied</span>
           </div>
           <p class="text-slate-500 font-bold">Aucune annonce disponible.</p>
           <button @click="listingsStore.fetchListings()" class="text-primary text-sm font-bold mt-2 underline">Réessayer</button>
@@ -145,26 +146,47 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useListingsStore } from '@/stores/listings';
+import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();
 const listingsStore = useListingsStore();
+const authStore = useAuthStore();
 
+const selectedCategory = ref('Tous');
+const premiumListings = computed(() => {
+  const list = (listingsStore.listings || []).filter(l => l.is_premium);
+  if (selectedCategory.value === 'Tous') {
+    return list.slice(0, 6);
+  }
+  return list.filter(p => 
+    p.exigences?.type?.toLowerCase() === selectedCategory.value.toLowerCase()
+  ).slice(0, 6);
+});
 const searchQuery = ref('');
-const selectedCategory = ref('apartment');
 const isLoading = computed(() => listingsStore.isLoading);
 
 const categories = [
+  { type: 'Tous', name: 'Tous', icon: 'grid_view' },
   { type: 'apartment', name: 'Appartement', icon: 'apartment' },
   { type: 'villa', name: 'Villa', icon: 'villa' },
   { type: 'studio', name: 'Studio', icon: 'holiday_village' },
-  { type: 'office', name: 'Bureau', icon: 'corporate_fare' },
-  { type: 'land', name: 'Terrain', icon: 'landscape' }
+  { type: 'chambre', name: 'Chambre', icon: 'bed' },
+  { type: 'concession', name: 'Concession', icon: 'home_work' }
 ];
 
 const listings = computed(() => listingsStore.listings || []);
-const premiumListings = computed(() => listings.value.slice(0, 6));
 
 const handleAISearch = () => {
+  if (!authStore.isAuthenticated) {
+    router.push({ 
+      path: '/login', 
+      query: { 
+        redirect: '/assistant-ia',
+        message: 'Veuillez vous connecter pour utiliser la recherche intelligente.' 
+      } 
+    });
+    return;
+  }
   if (searchQuery.value.trim()) {
     router.push({ path: '/assistant-ia', query: { q: searchQuery.value } });
   }

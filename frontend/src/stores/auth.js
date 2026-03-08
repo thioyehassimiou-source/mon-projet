@@ -34,7 +34,8 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null;
 
     try {
-      const data = await authService.login(credentials.email, credentials.password);
+      const { email, password } = credentials;
+      const data = await authService.login(email, password);
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data));
       setUser(data);

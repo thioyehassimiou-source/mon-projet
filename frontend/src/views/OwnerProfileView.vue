@@ -43,7 +43,7 @@
         <span class="material-symbols-outlined text-[14px]">chevron_right</span>
         <span class="hover:text-primary transition-colors cursor-pointer">Propriétaires</span>
         <span class="material-symbols-outlined text-[14px]">chevron_right</span>
-        <span class="text-primary dark:text-slate-100">Mamadou Diallo</span>
+        <span class="text-primary dark:text-slate-100">{{ owner?.name || 'Propriétaire' }}</span>
       </nav>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
@@ -59,7 +59,7 @@
                   <span class="material-symbols-outlined text-xl">verified</span>
                 </div>
               </div>
-              <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">Mamadou Diallo</h1>
+              <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">{{ owner?.name || 'Propriétaire' }}</h1>
               <p class="text-sm text-slate-500 dark:text-slate-400 mt-3 font-bold flex items-center gap-2">
                 <span class="material-symbols-outlined text-primary text-lg">location_on</span>
                 Hôte à Conakry, Guinée
@@ -98,7 +98,7 @@
             </div>
 
             <div class="mt-10 flex flex-col gap-4">
-              <button class="w-full bg-primary hover:bg-primary/95 text-white py-5 rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em] transition-all hover:translate-y-[-2px] active:translate-y-[2px] shadow-xl shadow-primary/20 flex items-center justify-center gap-3">
+              <button @click="contactOwner" class="w-full bg-primary hover:bg-primary/95 text-white py-5 rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em] transition-all hover:translate-y-[-2px] active:translate-y-[2px] shadow-xl shadow-primary/20 flex items-center justify-center gap-3">
                 <span class="material-symbols-outlined text-xl">mail</span>
                 Contacter le propriétaire
               </button>
@@ -252,59 +252,79 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { userService, listingService, messageService } from '@/services/api-fetch';
+
+const route = useRoute();
+const owner = ref(null);
+const ownerListings = ref([]);
+const loading = ref(true);
 
 const navLinks = [
-  { label: 'Locations', path: '/filtre' },
-  { label: 'Vendre', path: '/publier' },
+  { label: 'Locations', path: '/search' },
+  { label: 'Vendre', path: '/creer-annonce' },
   { label: 'Mes Favoris', path: '/favoris' },
   { label: 'Aide', path: '/aide' }
 ];
 
-const verifications = [
+const verifications = ref([
   'Identité confirmée',
   'Adresse email vérifiée',
-  'Numéro de téléphone',
-  'Documents de propriété'
-];
+  'Numéro de téléphone'
+]);
 
 const ratingDistribution = [
-  { stars: 5, percent: 85 },
-  { stars: 4, percent: 10 },
-  { stars: 3, percent: 3 },
-  { stars: 2, percent: 2 },
+  { stars: 5, percent: 90 },
+  { stars: 4, percent: 8 },
+  { stars: 3, percent: 2 },
+  { stars: 2, percent: 0 },
   { stars: 1, percent: 0 }
 ];
 
-const reviews = [
-  {
-    id: 1,
-    name: 'Fatoumata B.',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAyLpZpeIESI_lX9zKNteA9lYjC0tezcp59W-812rrFqeBW-phoPd_jbxU8esQcmeuQrnu6O1sQZSgf0BMB4N37AW0Aypp8XQStUQyhis1a4Y1s0pi8xyBWeHm08E3jNUaqUuEy_aOUHWSdWxNwrUYtWrdd7wo23lL1ipCEJPjGe8ywtD2ITE-RLKh3w6gd7-VjKrNR-xbYGttcI-Us3efZfne5ioJDI80LCITgx5hXNGEmNiRVRJng568SDy6RICVuGeQMXl3zjK84',
-    property: 'Villa Oasis',
-    date: 'Octobre 2023',
-    rating: 5,
-    text: 'Mamadou est un excellent propriétaire. Il est très réactif et soucieux du confort de ses locataires. La maison était exactement comme sur les photos, très propre et bien entretenue. Je recommande vivement ses services à quiconque cherche un logement à Conakry.'
-  },
-  {
-    id: 2,
-    name: 'Ibrahima S.',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAMaLAo5fR5RuZ_OVIIsvtysUcbZoXUmPulwBD2oAKGU3yPdozRBUADvWMPPes7hsdlfAoHhzbA1NvBcBeRirIhpo3WTGynP6-r613MHYQG3Vuq4C3z_Zfo72Dd0yUWar2UeiN21CiKWaH-rOnKKoC-p2g6nlPYEpnnLoK6eB9j8WH8P9fnXbMPwwAWEWYADUSCCZtTAOijGZPXGnwsGjQAZFLINaG0mZQbUZxoJfk2VIqOrhnke7kXeRHCmxKNJlMNAPrE_vRgCsL-',
-    property: 'Appartement Kaloum Center',
-    date: 'Septembre 2023',
-    rating: 4,
-    text: "Séjour parfait. Le check-in s'est fait très facilement. Mamadou nous a donné de bons conseils sur les commodités du quartier. L'appartement était calme et sécurisé. Petit bémol sur la pression de l'eau un matin, mais le problème a été réglé en 30 minutes."
-  },
-  {
-    id: 3,
-    name: 'Aminata K.',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAe0a6RuNR-mpPCdv34ENeHXdsWGwHcyF1BnLvFtGwoOKSjpgjslpCixWgOLRmOdURVP6rzkotJ7NHtOd0Finf3A_4q2HsSupJywX3c9rTjqQLhxlXkeTrknUdGDvZlvyaPfFhULLuooDG4Zj8PrVhPZrnPKdNjvYUalYHYpeW4vnO6pZoq0T54PO0vdAAivPrBeLw5-Pg_5VT7l-Di0ErYklaxVQp-WRUeM3uubObuc4ZpeOZW06GV0GrBpY5umL8C3DerCsuZmSNI',
-    property: 'Studio Moderne Kipé',
-    date: 'Juillet 2023',
-    rating: 5,
-    text: "Une expérience exceptionnelle. Monsieur Diallo est très professionnel. L'ameublement est de qualité et la connexion internet est excellente, ce qui était crucial pour mon travail. Tout était impeccable."
+const reviews = ref([]);
+
+onMounted(async () => {
+  const ownerId = route.params.id;
+  if (!ownerId) return;
+
+  try {
+    // 1. Charger les infos du proprio
+    const userData = await userService.getById(ownerId);
+    owner.value = userData;
+
+    if (userData.is_verified) {
+      verifications.value.push('Documents de propriété');
+    }
+
+    // 2. Charger les annonces du proprio (filtrées par son ID)
+    const allListings = await listingService.getAll({ owner_id: ownerId });
+    ownerListings.value = allListings;
+
+    // 3. Mock des reviews pour la V1 (pas encore de table reviews)
+    reviews.value = [
+      {
+        id: 1,
+        name: 'Client GuineaLogement',
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80',
+        property: allListings[0]?.titre || 'Logement',
+        date: 'Récemment',
+        rating: 5,
+        text: 'Très professionnel et réactif.'
+      }
+    ];
+  } catch (err) {
+    console.error("Erreur chargement profil propriétaire:", err);
+  } finally {
+    loading.value = false;
   }
-];
+});
+
+const contactOwner = () => {
+  if (owner.value) {
+    messageService.startConversation(owner.value.id);
+  }
+};
 
 const footerLinks = [
   { title: 'Navigation', links: ['À propos', 'Annonces', 'Prix', 'Contact'] },

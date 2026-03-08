@@ -283,7 +283,7 @@ const stats = [
 const alerts = ref([
   { 
     id: 1, 
-    name: 'Mamadou Diallo', 
+    name: 'Utilisateur Suspect', 
     type: 'Utilisateur', 
     ref: '8821', 
     score: 95, 

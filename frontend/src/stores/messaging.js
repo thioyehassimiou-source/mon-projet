@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { getConversations, getMessages, sendMessage, startConversation } from '@/services/messaging';
+import { messageService } from '@/services/api-fetch';
 
 export const useMessagingStore = defineStore('messaging', () => {
     const conversations = ref([]);
@@ -12,8 +12,8 @@ export const useMessagingStore = defineStore('messaging', () => {
     async function fetchConversations() {
         isLoading.value = true;
         try {
-            const response = await getConversations();
-            conversations.value = response.results || response;
+            const response = await messageService.getConversations();
+            conversations.value = response;
         } catch (err) {
             error.value = 'Erreur lors du chargement des conversations';
             console.error(err);
@@ -22,12 +22,12 @@ export const useMessagingStore = defineStore('messaging', () => {
         }
     }
 
-    async function fetchMessages(conversationId) {
+    async function fetchMessages(otherUserId) {
         isLoading.value = true;
         try {
-            const response = await getMessages(conversationId);
-            messages.value = response.results || response;
-            currentConversation.value = conversations.value.find(c => c.id === conversationId);
+            const response = await messageService.getConversation(otherUserId);
+            messages.value = response;
+            currentConversation.value = conversations.value.find(c => c.id === otherUserId);
         } catch (err) {
             error.value = 'Erreur lors du chargement des messages';
             console.error(err);
@@ -36,28 +36,28 @@ export const useMessagingStore = defineStore('messaging', () => {
         }
     }
 
-    async function sendNewMessage(conversationId, text) {
+    async function sendNewMessage(id_destinataire, text) {
         try {
-            const newMessage = await sendMessage(conversationId, text);
+            const newMessage = await messageService.sendMessage(id_destinataire, text);
             messages.value.push(newMessage);
 
             // Mettre à jour le dernier message de la conversation
-            const conv = conversations.value.find(c => c.id === conversationId);
+            const conv = conversations.value.find(c => c.id === id_destinataire);
             if (conv) {
                 conv.last_message = text;
-                conv.updated_at = new Date().toISOString();
+                conv.last_message_date = new Date().toISOString();
             }
             return { success: true };
         } catch (err) {
             console.error(err);
-            return { success: false };
+            return { success: false, error: err.message };
         }
     }
 
-    async function startConversationAction(listingId, message = "Bonjour, je suis intéressé par votre annonce.") {
+    async function startConversationAction(listingId, ownerId, message = "Bonjour, je suis intéressé par votre annonce.") {
         isLoading.value = true;
         try {
-            const response = await startConversation(listingId, message);
+            const response = await messageService.startConversation(ownerId, listingId, message);
             // On rafraîchit la liste pour inclure la nouvelle conversation
             await fetchConversations();
             return { success: true, conversation: response };

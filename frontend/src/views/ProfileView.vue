@@ -29,7 +29,7 @@
           </button>
         </div>
         <div class="flex flex-col items-center mt-6 space-y-1">
-          <p class="text-slate-900 dark:text-slate-100 text-2xl font-black leading-tight tracking-tight">{{ user?.nom || 'Mamadou Diallo' }}</p>
+          <p class="text-slate-900 dark:text-slate-100 text-2xl font-black leading-tight tracking-tight">{{ user?.name || 'Utilisateur' }}</p>
           <p class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-widest">{{ user?.localisation || 'Conakry, Guinée' }}</p>
         </div>
       </div>
@@ -185,7 +185,7 @@
         <div class="max-w-4xl mx-auto space-y-12">
           <!-- Header -->
           <div class="flex flex-col gap-1">
-            <h2 class="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Paramètres du compte</h2>
+              <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">{{ user?.name || 'Utilisateur' }}</h1>
             <p class="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">Gérez vos informations personnelles et vos préférences de sécurité.</p>
           </div>
 
@@ -205,12 +205,12 @@
                   </button>
                 </div>
                 <div class="space-y-3">
-                  <h3 class="text-3xl font-black text-slate-900 dark:text-white leading-none tracking-tight">{{ user?.nom || 'Mamadou Diallo' }}</h3>
+                  <h3 class="text-3xl font-black text-slate-900 dark:text-white leading-none tracking-tight">{{ user?.name || 'Utilisateur' }}</h3>
                   <div class="flex items-center gap-4 text-sm">
                     <span class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-widest text-[9px] bg-emerald-50 dark:bg-emerald-900/20 px-4 py-2 rounded-full">
                       <span class="material-symbols-outlined text-sm font-black">verified</span> {{ user?.role || 'Locataire' }} vérifié
                     </span>
-                    <span class="text-slate-400 font-black uppercase tracking-[0.2em] text-[10px]">Membre depuis Jan 2023</span>
+                    <span class="text-slate-400 font-black uppercase tracking-[0.2em] text-[10px]">Membre depuis {{ formatDate(user?.created_at) }}</span>
                   </div>
                 </div>
               </div>
@@ -223,7 +223,7 @@
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <!-- Left Column: Details & Verification -->
             <div class="lg:col-span-2 space-y-12">
-              <section class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm transition-colors duration-200">
+              <section v-if="activeSection === 'profile'" class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm transition-colors duration-200">
                 <div class="px-10 py-8 border-b border-slate-100 dark:border-slate-800">
                   <h4 class="font-black text-slate-900 dark:text-white uppercase tracking-widest text-xs">Informations personnelles</h4>
                 </div>
@@ -245,14 +245,21 @@
                       <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Téléphone</label>
                       <input v-model="form.phone" class="w-full px-6 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm font-bold outline-none shadow-inner" type="tel" placeholder="+224 ..."/>
                     </div>
+                    <div class="flex flex-col justify-center bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-700/50">
+                      <p class="text-[9px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest">Identité confirmée</p>
+                      <p class="text-sm font-black uppercase tracking-tight text-slate-900 dark:text-white">{{ user?.name || 'Titulaire' }}</p>
+                    </div>
                     <div class="space-y-3">
                       <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Ville</label>
-                      <select v-model="form.city" class="w-full px-6 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm font-bold outline-none shadow-inner appearance-none cursor-pointer">
-                        <option value="Conakry">Conakry</option>
-                        <option value="Kindia">Kindia</option>
-                        <option value="Labé">Labé</option>
-                        <option value="Kankan">Kankan</option>
-                      </select>
+                      <div class="relative">
+                        <select v-model="form.city" class="w-full px-6 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm font-bold outline-none shadow-inner appearance-none cursor-pointer">
+                          <option value="Conakry">Conakry</option>
+                          <option value="Kindia">Kindia</option>
+                          <option value="Labé">Labé</option>
+                          <option value="Kankan">Kankan</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                      </div>
                     </div>
                     <div class="md:col-span-2 pt-4">
                       <button class="bg-primary text-white px-12 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:opacity-90 transition-all active:scale-95 shadow-2xl shadow-primary/30" type="submit">
@@ -263,16 +270,55 @@
                 </div>
               </section>
 
-              <section class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm transition-colors duration-200">
+              <section v-if="activeSection === 'kyc'" class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm transition-colors duration-200">
                 <div class="px-10 py-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
                   <h4 class="font-black text-slate-900 dark:text-white uppercase tracking-widest text-xs">Vérification d'identité (KYC)</h4>
-                  <span class="px-4 py-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-black rounded-full uppercase tracking-widest">Approuvé</span>
+                  <span :class="user?.is_verified ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'" class="px-4 py-2 text-[10px] font-black rounded-full uppercase tracking-widest">{{ user?.is_verified ? 'Approuvé' : 'En attente' }}</span>
                 </div>
                 <div class="p-10 space-y-10">
                   <div class="flex items-start gap-6 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-100 dark:border-slate-700/50">
                     <span class="material-symbols-outlined text-primary text-3xl">info</span>
-                    <p class="text-base text-slate-500 dark:text-slate-400 leading-relaxed font-medium">Votre identité a été vérifiée le 15 Janvier 2023. Les documents vérifiés incluent votre carte d'identité nationale et votre justificatif de domicile.</p>
+                    <div class="space-y-4 w-full">
+                      <p class="text-base text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                        {{ user?.is_verified ? 'Votre identité a été vérifiée avec succès.' : 'Veuillez uploader une copie recto-verso de votre pièce d\'identité (CNI ou Passeport) pour valider votre compte.' }}
+                      </p>
+                      
+                      <div v-if="!user?.is_verified" class="pt-4 space-y-4">
+                        <div class="flex flex-col gap-2">
+                          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Document d'identité (JPG, PNG ou PDF)</label>
+                          <input type="file" ref="kycFileInput" @change="handleFileChange" class="hidden" accept=".jpg,.jpeg,.png,.pdf" />
+                          <div class="flex items-center gap-4">
+                            <button @click="$refs.kycFileInput.click()" class="px-6 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center gap-2">
+                              <span class="material-symbols-outlined text-sm">attach_file</span>
+                              {{ selectedFile ? selectedFile.name : 'Choisir un fichier' }}
+                            </button>
+                            <button v-if="selectedFile" @click="uploadKYC" :disabled="uploading" class="px-6 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-90 disabled:opacity-50 transition-all">
+                              {{ uploading ? 'Envoi...' : 'Envoyer pour validation' }}
+                            </button>
+                          </div>
+                        </div>
+                        <p v-if="uploadMessage" :class="uploadError ? 'text-red-500' : 'text-emerald-500'" class="text-xs font-bold">{{ uploadMessage }}</p>
+                      </div>
+                    </div>
                   </div>
+                </div>
+              </section>
+
+              <section v-if="activeSection === 'security'" class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm p-10">
+                <h4 class="font-black text-slate-900 dark:text-white uppercase tracking-widest text-xs mb-8">Paramètres de Sécurité</h4>
+                <div class="space-y-6">
+                   <div v-for="sec in securityItems" :key="sec.title" class="flex items-center justify-between p-6 bg-slate-50 dark:bg-slate-800 rounded-3xl">
+                      <div class="flex items-center gap-4">
+                         <div class="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                            <span class="material-symbols-outlined">{{ sec.icon }}</span>
+                         </div>
+                         <div>
+                            <p class="text-sm font-black text-slate-900 dark:text-white">{{ sec.title }}</p>
+                            <p class="text-xs text-slate-500">{{ sec.desc }}</p>
+                         </div>
+                      </div>
+                      <button class="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">Gérer</button>
+                   </div>
                 </div>
               </section>
             </div>
@@ -332,12 +378,73 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { userService, listingService } from '@/services/api-fetch'; // Added listingService
 
 const router = useRouter();
 const authStore = useAuthStore();
 
 const activeSection = ref('profile');
 const user = computed(() => authStore.user);
+
+// --- KYC Logic ---
+const kycFileInput = ref(null);
+const selectedFile = ref(null);
+const uploading = ref(false);
+const uploadMessage = ref('');
+const uploadError = ref(false);
+
+const handleFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    selectedFile.value = file;
+    uploadMessage.value = '';
+  }
+};
+
+const uploadKYC = async () => {
+  if (!selectedFile.value) return;
+
+  uploading.value = true;
+  uploadMessage.value = '';
+  uploadError.value = false;
+
+  const formData = new FormData();
+  formData.append('document', selectedFile.value);
+
+  try {
+    const token = localStorage.getItem('token');
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/auth/upload-kyc`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      uploadMessage.value = 'Document envoyé avec succès ! Un administrateur va le vérifier.';
+      selectedFile.value = null;
+      // Optionnel : rafraîchir le profil
+      authStore.getProfile();
+    } else {
+      throw new Error(data.message || 'Erreur lors de l\'envoi');
+    }
+  } catch (error) {
+    uploadError.value = true;
+    uploadMessage.value = error.message;
+  } finally {
+    uploading.value = false;
+  }
+};
+const formatDate = (dateString) => {
+  if (!dateString) return '...';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+};
+// -----------------
 
 const navItems = [
   { id: 'dashboard', label: 'Tableau de bord', icon: 'dashboard' },
@@ -368,9 +475,9 @@ const notificationPrefs = reactive([
 ]);
 
 const mobilePersonalInfo = computed(() => [
-  { label: 'Nom complet', value: user.value?.nom || 'Mamadou Diallo', icon: 'person' },
-  { label: 'E-mail', value: user.value?.email || 'm.diallo@guineelogement.gn', icon: 'mail' },
-  { label: 'Téléphone', value: user.value?.telephone || '+224 620 00 00 00', icon: 'phone' },
+  { label: 'Nom complet', value: user.value?.name || 'Nom non défini', icon: 'person' },
+  { label: 'E-mail', value: user.value?.email || 'email@exemple.gn', icon: 'mail' },
+  { label: 'Téléphone', value: user.value?.phone || '+224 ...', icon: 'phone' },
 ]);
 
 const form = reactive({
@@ -383,17 +490,37 @@ const form = reactive({
 
 onMounted(() => {
   if (user.value) {
-    const parts = user.value.nom?.split(' ') || ['', ''];
+    const parts = user.value.name?.split(' ') || ['', ''];
     form.prenom = parts[0];
     form.nom = parts.slice(1).join(' ');
     form.email = user.value.email || '';
-    form.phone = user.value.telephone || '+224 ...';
+    form.phone = user.value.phone || '+224 ...';
     form.city = user.value.localisation?.split(',')[0] || 'Conakry';
   }
 });
 
+const isUpdating = ref(false);
+
 const updateProfile = async () => {
-  console.log('Update profile:', form);
+  isUpdating.value = true;
+  try {
+    const payload = {
+      name: `${form.prenom} ${form.nom}`.trim(),
+      email: form.email,
+      phone: form.phone
+    };
+    const response = await userService.updateProfile(payload);
+    if (response.success) {
+      // Mettre à jour le store auth avec le nouvel utilisateur
+      authStore.setUser({ ...authStore.user, ...response.user });
+      localStorage.setItem('user', JSON.stringify({ ...authStore.user, ...response.user }));
+      alert('Profil mis à jour avec succès !');
+    }
+  } catch (error) {
+    alert(error.message || 'Erreur lors de la mise à jour du profil');
+  } finally {
+    isUpdating.value = false;
+  }
 };
 
 const handleLogout = async () => {

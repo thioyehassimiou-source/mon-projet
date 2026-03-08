@@ -5,13 +5,13 @@
     <header class="md:hidden h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between px-4 shrink-0">
       <div class="flex items-center gap-2">
         <button @click="isSidebarOpen = !isSidebarOpen" class="p-2 text-primary">
-          <span class="material-symbols-outlined">{{ isSidebarOpen ? 'close' : 'menu' }}</span>
+          <span class="material-symbols-outlined notranslate" translate="no">{{ isSidebarOpen ? 'close' : 'menu' }}</span>
         </button>
         <h2 class="font-bold text-lg">AI Assistant</h2>
       </div>
       <div class="h-8 w-8 rounded-full bg-slate-200 overflow-hidden">
         <img v-if="authStore.user?.photo" :src="authStore.user.photo" class="w-full h-full object-cover" />
-        <span v-else class="material-symbols-outlined flex items-center justify-center h-full">person</span>
+        <span v-else class="material-symbols-outlined flex items-center justify-center h-full notranslate" translate="no">person</span>
       </div>
     </header>
 
@@ -24,7 +24,7 @@
     >
       <div class="p-6 flex items-center gap-3">
         <div class="bg-primary rounded-lg p-2 text-white">
-          <span class="material-symbols-outlined">apartment</span>
+          <span class="material-symbols-outlined notranslate" translate="no">apartment</span>
         </div>
         <div>
           <h1 class="font-bold text-lg leading-none text-primary">GuinéeLogement</h1>
@@ -34,19 +34,19 @@
       
       <nav class="flex-1 px-4 space-y-1 mt-4">
         <router-link to="/" class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
-          <span class="material-symbols-outlined">home</span>
+          <span class="material-symbols-outlined notranslate" translate="no">home</span>
           <span class="text-sm font-medium">Accueil</span>
         </router-link>
         <router-link to="/assistant-ia" class="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg">
-          <span class="material-symbols-outlined">chat_bubble</span>
+          <span class="material-symbols-outlined notranslate" translate="no">chat_bubble</span>
           <span class="text-sm font-medium">AI Assistant</span>
         </router-link>
         <router-link to="/search" class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
-          <span class="material-symbols-outlined">search</span>
+          <span class="material-symbols-outlined notranslate" translate="no">search</span>
           <span class="text-sm font-medium">Recherche</span>
         </router-link>
         <router-link to="/mon-profil" class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
-          <span class="material-symbols-outlined">account_circle</span>
+          <span class="material-symbols-outlined notranslate" translate="no">account_circle</span>
           <span class="text-sm font-medium">Profil</span>
         </router-link>
       </nav>
@@ -71,7 +71,7 @@
           @click="createNewConversation"
           class="w-full mt-4 bg-primary text-white py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform"
         >
-          <span class="material-symbols-outlined text-sm">add</span>
+          <span class="material-symbols-outlined text-sm notranslate" translate="no">add</span>
           Nouvelle Discussion
         </button>
       </div>
@@ -94,7 +94,7 @@
         </div>
         <div class="flex items-center gap-4">
           <button class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
-            <span class="material-symbols-outlined">notifications</span>
+            <span class="material-symbols-outlined notranslate" translate="no">notifications</span>
           </button>
           <div class="h-8 w-8 rounded-full bg-slate-200 overflow-hidden">
              <img v-if="authStore.user?.photo" :src="authStore.user.photo" class="w-full h-full object-cover" />
@@ -119,9 +119,9 @@
                   msg.role === 'user' ? 'bg-slate-200' : 'bg-primary text-white'
                 ]"
               >
-                <span v-if="msg.role !== 'user'" class="material-symbols-outlined">smart_toy</span>
+                <span v-if="msg.role !== 'user'" class="material-symbols-outlined notranslate" translate="no">smart_toy</span>
                 <img v-else-if="authStore.user?.photo" :src="authStore.user.photo" class="w-full h-full object-cover" />
-                <span v-else class="material-symbols-outlined">person</span>
+                <span v-else class="material-symbols-outlined notranslate" translate="no">person</span>
               </div>
               
               <div :class="['space-y-2', msg.role === 'user' ? 'items-end flex flex-col' : '']">
@@ -135,9 +135,27 @@
                 >
                   <p class="text-sm leading-relaxed">{{ msg.content }}</p>
                   
-                  <!-- Property Results placeholder (if applicable) -->
-                  <div v-if="msg.results" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                     <!-- This part would map real results if the AI returns structured data -->
+                  <!-- Property Results (Phase 5) -->
+                  <div v-if="msg.results && msg.results.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                     <div 
+                       v-for="prop in msg.results" 
+                       :key="prop.id"
+                       @click="$router.push(`/listings/${prop.id}`)"
+                       class="bg-slate-50 dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 hover:border-primary transition-all cursor-pointer group"
+                     >
+                        <div class="h-32 overflow-hidden relative">
+                           <img :src="prop.images?.[0] || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400'" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                           <div class="absolute top-2 left-2 bg-primary text-white text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-widest">{{ prop.exigences?.type || 'Logement' }}</div>
+                        </div>
+                        <div class="p-3">
+                           <p class="text-xs font-black truncate text-slate-900 dark:text-white">{{ prop.titre }}</p>
+                           <p class="text-[10px] text-primary font-black mt-1">{{ Number(prop.price).toLocaleString() }} GNF</p>
+                           <div class="flex items-center gap-1 mt-2 text-slate-500">
+                              <span class="material-symbols-outlined text-xs notranslate" translate="no">location_on</span>
+                              <span class="text-[9px] font-bold truncate">{{ prop.localisation }}</span>
+                           </div>
+                        </div>
+                     </div>
                   </div>
                 </div>
                 <span :class="['text-[10px] text-slate-400', msg.role === 'user' ? 'mr-1' : 'ml-1']">
@@ -149,7 +167,7 @@
             <!-- Typing Indicator -->
             <div v-if="isTyping" class="flex gap-4 max-w-3xl">
               <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-white animate-pulse">smart_toy</span>
+                <span class="material-symbols-outlined text-white animate-pulse notranslate" translate="no">smart_toy</span>
               </div>
               <div class="bg-white dark:bg-slate-900 p-4 rounded-xl rounded-tl-none border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div class="flex gap-1">
@@ -178,7 +196,7 @@
                     :disabled="!newMessage.trim() || isTyping"
                     class="p-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
                   >
-                    <span class="material-symbols-outlined">send</span>
+                    <span class="material-symbols-outlined notranslate" translate="no">send</span>
                   </button>
                 </div>
               </div>
@@ -235,7 +253,7 @@
               <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Documents requis</h4>
               <ul class="space-y-2">
                 <li v-for="doc in contextInfo.docs" :key="doc.label" class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-                  <span class="material-symbols-outlined text-sm" :class="doc.required ? 'text-green-500' : 'text-slate-300'">
+                  <span class="material-symbols-outlined text-sm notranslate" translate="no" :class="doc.required ? 'text-green-500' : 'text-slate-300'">
                     {{ doc.required ? 'check_circle' : 'circle' }}
                   </span>
                   {{ doc.label }}
@@ -250,11 +268,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, watch } from 'vue';
+import { ref, nextTick, watch, onMounted } from 'vue';
 import { aiService } from '@/services/api-fetch';
 import { useAuthStore } from '@/stores/auth';
+import { useRoute, useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
+const route = useRoute();
+const router = useRouter();
 
 const isSidebarOpen = ref(false);
 const isTyping = ref(false);
@@ -316,6 +337,10 @@ const formatDateRelative = (date) => {
 };
 
 const handleSendMessage = async () => {
+  if (!authStore.isAuthenticated) {
+    router.push({ name: 'login', query: { redirect: route.fullPath } });
+    return;
+  }
   if (!newMessage.value.trim() || isTyping.value) return;
 
   const content = newMessage.value;
@@ -347,7 +372,8 @@ const handleSendMessage = async () => {
     messages.value.push({
       role: 'assistant',
       content: data.contenu || "Je ne sais pas comment répondre à cela.",
-      timestamp: new Date()
+      timestamp: new Date(),
+      results: data.results || [] // Phase 5: Pass real results to UI
     });
   } catch (error) {
     messages.value.push({
@@ -399,8 +425,26 @@ const loadConversation = async (id) => {
 };
 
 onMounted(async () => {
+  // Redirection guard (Phase 5)
+  if (!authStore.isAuthenticated) {
+    router.push({ 
+      path: '/login', 
+      query: { 
+        redirect: route.fullPath,
+        message: 'Veuillez vous connecter pour utiliser l\'assistant IA.' 
+      } 
+    });
+    return;
+  }
+
   loadConversations();
   await scrollToBottom();
+
+  // Handle initial query from HomeView (Phase 5)
+  if (route.query.q) {
+    newMessage.value = route.query.q;
+    handleSendMessage();
+  }
 });
 
 watch(messages, () => scrollToBottom(), { deep: true });

@@ -37,9 +37,9 @@
             <div class="relative group">
               <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">person</span>
               <input 
-                v-model="form.username" 
+                v-model="form.email" 
                 required 
-                type="text" 
+                type="email" 
                 class="w-full h-14 pl-12 pr-4 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-primary focus:border-primary transition-all text-sm font-semibold shadow-sm" 
                 placeholder="Ex: mamadou@email.com" 
               />
@@ -125,7 +125,7 @@ const isLoading = ref(false);
 const showPassword = ref(false);
 
 const form = reactive({
-  username: '',
+  email: '',
   password: ''
 });
 
@@ -138,8 +138,8 @@ const handleSubmit = async () => {
   isLoading.value = true;
   
   try {
-    const { username, password } = form;
-    const result = await authStore.login({ username, password });
+    const { email, password } = form;
+    const result = await authStore.login({ email, password });
     
     if (result.success) {
       router.push('/');

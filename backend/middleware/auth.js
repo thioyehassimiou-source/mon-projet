@@ -7,7 +7,11 @@ const protect = async (req, res, next) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
             token = req.headers.authorization.split(' ')[1];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_par_defaut');
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            if (!process.env.JWT_SECRET) {
+                console.error("❌ CRITICAL: JWT_SECRET is not defined in .env");
+                return res.status(500).json({ message: "Erreur de configuration serveur" });
+            }
 
             // Correction : table 'users' au lieu de 'utilisateurs'
             const result = await query('SELECT id, name, email, role FROM users WHERE id = $1', [decoded.id]);

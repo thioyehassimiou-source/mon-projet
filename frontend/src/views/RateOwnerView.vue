@@ -21,7 +21,7 @@
             </div>
           </div>
           <div class="flex flex-col items-center justify-center text-center">
-            <p class="text-slate-900 dark:text-white text-2xl font-black leading-tight tracking-tighter">Mamadou Diallo</p>
+            <p class="text-slate-900 dark:text-white text-2xl font-black leading-tight tracking-tighter">Propriétaire</p>
             <p class="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Propriétaire • Annonce <span class="text-primary">#GL-9921</span></p>
           </div>
         </div>

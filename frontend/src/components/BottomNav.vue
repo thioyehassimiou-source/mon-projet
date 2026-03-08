@@ -1,5 +1,5 @@
 <template>
-  <nav class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 px-6 pb-2 pt-2 z-50 flex justify-between items-center shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.05)]">
+  <nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800 px-6 pb-6 pt-3 z-50 flex justify-between items-center shadow-[0_-8px_30px_-10px_rgba(0,0,0,0.1)]">
     <router-link to="/" class="flex flex-col items-center gap-1 flex-1 py-1 transition-colors" :class="isActive('/') ? 'text-primary' : 'text-slate-400 dark:text-slate-500'">
       <span class="material-symbols-outlined" :class="{ 'fill-1': isActive('/') }">home</span>
       <span class="text-[10px] font-medium">Accueil</span>

@@ -40,7 +40,7 @@
           <div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black border border-primary/20">AD</div>
           <div class="flex-1 min-w-0 pr-2">
             <p class="text-[11px] font-black text-slate-900 dark:text-white truncate">Admin Principal</p>
-            <p class="text-[9px] text-slate-500 font-bold truncate">admin@guineelogement.gn</p>
+            <p class="text-[9px] text-slate-500 font-bold truncate">administrateur@gl.gn</p>
           </div>
           <button @click="$router.push('/login')" class="size-8 flex items-center justify-center rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/20 text-slate-400 hover:text-rose-500 transition-colors">
             <span class="material-symbols-outlined text-lg">logout</span>

@@ -230,7 +230,7 @@
                   <div class="flex justify-between items-end relative z-10 pt-2">
                     <div class="flex flex-col">
                       <p class="text-[9px] text-white/40 uppercase font-black tracking-widest">Titulaire</p>
-                      <p class="text-sm font-black uppercase tracking-tight">{{ user?.nom || 'Moussa Camara' }}</p>
+                      <p class="text-sm font-black uppercase tracking-tight">{{ user?.name || 'Propriétaire' }}</p>
                     </div>
                     <div class="flex flex-col items-end">
                       <p class="text-[9px] text-white/40 uppercase font-black tracking-widest">Expire</p>

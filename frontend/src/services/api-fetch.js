@@ -83,13 +83,22 @@ export const listingService = {
 
 // 💬 MESSAGERIE
 export const messageService = {
+    // Récupérer la liste des discussions
+    getConversations: () => fetchWithAuth('/messages/conversations'),
+
+    // Récupérer les messages avec un utilisateur spécifique
     getConversation: (userId) => fetchWithAuth(`/messages/conversation/${userId}`),
 
-    sendMessage: (messageData) =>
+    // Envoyer un message (peut inclure id_logement pour démarrer une discussion)
+    sendMessage: (id_destinataire, contenu, id_logement = null) =>
         fetchWithAuth('/messages', {
             method: 'POST',
-            body: JSON.stringify(messageData),
+            body: JSON.stringify({ id_destinataire, contenu, id_logement }),
         }),
+
+    // Raccourci pour démarrer une discussion depuis une annonce
+    startConversation: (id_destinataire, id_logement, message = "Bonjour, je suis intéressé par votre annonce.") =>
+        messageService.sendMessage(id_destinataire, message, id_logement),
 };
 
 // 💳 PAIEMENTS
@@ -123,4 +132,20 @@ export const aiService = {
             method: 'PUT',
             body: JSON.stringify(prefs),
         }),
+};
+// 👤 UTILISATEURS
+export const userService = {
+    updateProfile: (data) =>
+        fetchWithAuth('/utilisateurs/me', {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        }),
+
+    updatePassword: (data) =>
+        fetchWithAuth('/utilisateurs/me/password', {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        }),
+
+    getById: (id) => fetchWithAuth(`/utilisateurs/${id}`),
 };

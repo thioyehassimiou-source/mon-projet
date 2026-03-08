@@ -11,29 +11,62 @@ class AIService {
         }
     }
 
+    /**
+     * Extrait les critères de recherche d'une requête utilisateur au format JSON.
+     */
+    async extractSearchCriteria(userQuery) {
+        if (!this.groq) return { type: null, quartier: null, prix_max: null };
+
+        const extractionPrompt = `
+            Tu es un extracteur de données immobilières pour la Guinée.
+            Extrais les critères de recherche de la phrase suivante en JSON.
+            
+            Format attendu :
+            {
+                "type": "apartment" | "villa" | "studio" | "chambre" | null,
+                "quartier": string | null (ex: "Kipé", "Ratoma"),
+                "prix_max": number | null (convertis les millions en chiffres, ex: "2 millions" -> 2000000)
+            }
+            
+            Phrase : "${userQuery}"
+            RÉPOND UNIQUEMENT LE JSON.
+        `;
+
+        try {
+            const completion = await this.groq.chat.completions.create({
+                messages: [{ role: "user", content: extractionPrompt }],
+                model: "mixtral-8x7b-32768",
+                temperature: 0,
+                response_format: { type: "json_object" }
+            });
+            return JSON.parse(completion.choices[0].message.content);
+        } catch (error) {
+            console.error("Extraction Error:", error.message);
+            return { type: null, quartier: null, prix_max: null };
+        }
+    }
+
     async generateResponse(userQuery, propertyContext = []) {
         if (!this.groq) {
             return `[SIMULATION GROQ] Vous cherchez : "${userQuery}". Voici des suggestions basées sur nos ${propertyContext.length} logements trouvés...`;
         }
 
-        // Construction du contexte structuré
         const contextString = propertyContext.map(p =>
-            `- TITRE: ${p.titre} | PRIX: ${p.prix} GNF | LOCALISATION: ${p.localisation} | DESCRIPTION: ${p.description}`
+            `- [ID:${p.id}] ${p.titre} | PRIX: ${p.prix} GNF | QUARTIER: ${p.localisation} | TYPE: ${p.exigences?.type || 'N/A'}`
         ).join('\n');
 
         const systemPrompt = `
-            Tu es l'assistant intelligent "GuinéeLogement Expert".
-            Ton rôle est d'aider les utilisateurs à trouver des logements en Guinée (Conakry).
+            Tu es l'assistant "GuinéeLogement IA".
+            Aide l'utilisateur à trouver un logement parmi la liste fournie.
             
-            RÈGLES STRICTES :
-            1. Ne parle QUE des logements fournis dans le CONTEXTE ci-dessous.
-            2. Si aucun logement n'est fourni, explique que tu n'as pas de biens correspondants mais donne des conseils généraux sur le quartier mentionné.
-            3. INTERDICTION d'inventer des logements ou des prix.
-            4. Réponds en FRANÇAIS, de manière professionnelle et concise.
-            5. Propose maximum 2-3 logements parmi ceux fournis.
+            DIRECTIVES :
+            1. Cite UNIQUEMENT les logements du CONTEXTE ci-dessous.
+            2. Pour chaque logement cité, donne son prix et son quartier.
+            3. Si aucun logement ne correspond, suggère d'élargir la recherche.
+            4. Réponds de façon chaleureuse et professionnelle.
             
-            CONTEXTE DES LOGEMENTS DISPONIBLES :
-            ${contextString || "AUCUN LOGEMENT TROUVÉ"}
+            CONTEXTE :
+            ${contextString || "AUCUN LOGEMENT TROUVÉ EN BASE"}
         `;
 
         try {
@@ -43,17 +76,13 @@ class AIService {
                     { role: "user", content: userQuery }
                 ],
                 model: "mixtral-8x7b-32768",
-                temperature: 0.2,
-                max_tokens: 1024,
-                top_p: 1,
-                stream: false,
-                stop: null
+                temperature: 0.3,
             });
 
-            return completion.choices[0]?.message?.content || "Désolé, je ne peux pas générer de réponse pour le moment.";
+            return completion.choices[0]?.message?.content || "Désolé, je ne peux pas répondre pour le moment.";
         } catch (error) {
-            console.error("Erreur GROQ API:", error.message);
-            throw new Error("Erreur lors de la communication avec le moteur IA.");
+            console.error("GROQ API Error:", error.message);
+            throw new Error("Erreur IA.");
         }
     }
 }

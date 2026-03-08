@@ -3,7 +3,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET || 'secret_par_defaut', {
+    if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET non configuré dans l'environnement");
+    }
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: '30d',
     });
 };
@@ -11,7 +14,27 @@ const generateToken = (id) => {
 // @desc    Inscription d'un nouvel utilisateur
 // @route   POST /api/auth/register
 exports.register = async (req, res) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, phone, first_name, last_name, user_type, id_number } = req.body;
+    const finalName = name || `${first_name || ''} ${last_name || ''}`.trim();
+
+    // Validation des entrées
+    if (!finalName || finalName.length < 2) {
+        return res.status(400).json({ message: 'Le nom doit contenir au moins 2 caractères' });
+    }
+    if (!email || !email.includes('@')) {
+        return res.status(400).json({ message: 'Email invalide' });
+    }
+    if (!password || password.length < 6) {
+        return res.status(400).json({ message: 'Le mot de passe doit contenir au moins 6 caractères' });
+    }
+    if (phone && !/^\+?[0-9\s-]{8,}$/.test(phone)) {
+        return res.status(400).json({ message: 'Numéro de téléphone invalide' });
+    }
+
+    // Mappage des rôles
+    let finalRole = role || user_type || 'locataire';
+    if (finalRole === 'tenant') finalRole = 'locataire';
+    if (finalRole === 'owner' || finalRole === 'agency') finalRole = 'proprietaire';
 
     try {
         // Vérifier si l'utilisateur existe déjà
@@ -26,8 +49,8 @@ exports.register = async (req, res) => {
 
         // Insérer l'utilisateur
         const newUser = await query(
-            'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
-            [name, email, hashedPwd, role || 'locataire']
+            'INSERT INTO users (name, email, password, role, phone, id_number) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, email, role, phone',
+            [finalName, email, hashedPwd, finalRole, phone, id_number]
         );
 
         const user = newUser.rows[0];
@@ -76,6 +99,30 @@ exports.getProfile = async (req, res) => {
             res.status(404).json({ message: 'Profil non trouvé' });
         }
     } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Uploader un document KYC
+// @route   POST /api/auth/upload-kyc
+exports.uploadKYCDocument = async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: 'Aucun fichier téléchargé' });
+    }
+
+    try {
+        const filePath = `/uploads/kyc/${req.file.filename}`;
+        await query(
+            'UPDATE users SET id_document = $1, is_verified = FALSE WHERE id = $2',
+            [filePath, req.user.id]
+        );
+
+        res.json({
+            message: 'Document KYC téléchargé avec succès. En attente de validation.',
+            id_document: filePath
+        });
+    } catch (error) {
+        console.error("KYC Upload Error:", error);
         res.status(500).json({ message: error.message });
     }
 };

@@ -6,7 +6,7 @@
         <div class="flex items-center justify-between md:justify-start gap-6">
           <div class="flex items-center gap-4">
             <button @click="$router.push('/')" class="size-11 bg-surface-warm dark:bg-neutral-800 rounded-2xl flex items-center justify-center text-primary active:scale-95 transition-all">
-              <span class="material-symbols-outlined">arrow_back</span>
+              <span class="material-symbols-outlined notranslate" translate="no">arrow_back</span>
             </button>
             <h1 class="text-2xl md:text-3xl font-black tracking-tight">Recherche</h1>
           </div>
@@ -18,14 +18,14 @@
               :class="viewMode === 'list' ? 'bg-primary text-white shadow-lg' : 'text-neutral-400'"
               class="size-11 rounded-xl flex items-center justify-center transition-all duration-300"
             >
-              <span class="material-symbols-outlined">format_list_bulleted</span>
+              <span class="material-symbols-outlined notranslate" translate="no">format_list_bulleted</span>
             </button>
             <button
               @click="viewMode = 'map'"
               :class="viewMode === 'map' ? 'bg-primary text-white shadow-lg' : 'text-neutral-400'"
               class="size-11 rounded-xl flex items-center justify-center transition-all duration-300"
             >
-              <span class="material-symbols-outlined">map</span>
+              <span class="material-symbols-outlined notranslate" translate="no">map</span>
             </button>
           </div>
         </div>
@@ -34,7 +34,7 @@
         <div class="flex flex-col md:flex-row flex-1 items-center gap-4">
           <div class="relative w-full md:max-w-md group">
             <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-              <span class="material-symbols-outlined text-primary group-focus-within:scale-110 transition-transform">search</span>
+              <span class="material-symbols-outlined text-primary group-focus-within:scale-110 transition-transform notranslate" translate="no">search</span>
             </div>
             <input
               type="text"
@@ -50,7 +50,7 @@
               @click="showFilterModal = true"
               class="flex items-center gap-2 px-6 py-3.5 md:py-3 bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-100 dark:border-neutral-700 shadow-sm active:scale-95 transition-all whitespace-nowrap"
             >
-              <span class="material-symbols-outlined text-[18px] text-primary">tune</span>
+              <span class="material-symbols-outlined text-[18px] text-primary notranslate" translate="no">tune</span>
               <span class="text-[10px] font-black uppercase tracking-widest text-gray-900 dark:text-neutral-300">Filtres</span>
               <span v-if="activeFilterCount > 0" class="size-4 bg-primary text-white text-[8px] flex items-center justify-center rounded-full leading-none">
                 {{ activeFilterCount }}
@@ -80,7 +80,7 @@
 
           <div v-else-if="filteredListings.length === 0" class="flex flex-col items-center justify-center py-20 text-center space-y-6">
             <div class="size-20 bg-surface-warm dark:bg-neutral-800 rounded-[2rem] flex items-center justify-center text-neutral-300">
-              <span class="material-symbols-outlined text-4xl">search_off</span>
+              <span class="material-symbols-outlined text-4xl notranslate" translate="no">search_off</span>
             </div>
             <div>
               <h3 class="text-xl font-black text-gray-900 dark:text-white mb-2">Aucun résultat</h3>
@@ -140,7 +140,7 @@
               <p class="text-[9px] font-black uppercase text-primary tracking-widest mt-1">Personnalisez votre recherche</p>
             </div>
             <button @click="showFilterModal = false" class="size-12 rounded-2xl bg-white dark:bg-neutral-800 shadow-sm flex items-center justify-center text-neutral-500 hover:text-primary transition-colors">
-              <span class="material-symbols-outlined">close</span>
+              <span class="material-symbols-outlined notranslate" translate="no">close</span>
             </button>
           </div>
           
@@ -251,8 +251,8 @@ const propertyTypes = [
   { label: 'Appartement', value: 'apartment' },
   { label: 'Villa', value: 'villa' },
   { label: 'Studio', value: 'studio' },
-  { label: 'Terrain', value: 'land' },
-  { label: 'Maison', value: 'house' }
+  { label: 'Chambre simple', value: 'chambre' },
+  { label: 'Concession', value: 'concession' }
 ];
 
 const transactionTypes = [

@@ -27,46 +27,70 @@ exports.getConversations = async (req, res) => {
     }
 };
 
-// Envoi d'un message avec moteur RAG
+// Envoi d'un message avec moteur RAG Dynamique (Phase 5)
 exports.handleAIChat = async (req, res) => {
     const { contenu, id_conversation } = req.body;
     const userId = req.user.id;
 
     try {
-        // 1. Sauvegarder le message de l'utilisateur
+        // 0. Vérifier la conversation (Sécurité)
+        const convCheck = await query('SELECT * FROM conversations_ia WHERE id = $1 AND id_utilisateur = $2', [id_conversation, userId]);
+        if (convCheck.rows.length === 0) {
+            return res.status(404).json({ message: "Conversation non trouvée" });
+        }
+
+        // 1. Sauvegarder le message utilisateur
         await query(
             'INSERT INTO messages_ia (role, contenu, id_conversation) VALUES ($1, $2, $3)',
             ['user', contenu, id_conversation]
         );
 
-        // 2. Recherche RAG : Extraire des mots clés simples du contenu pour le SQL
-        // Ici on fait une recherche simplifiée sur la localisation ou le titre
-        const keywords = contenu.split(' ').filter(w => w.length > 3);
-        let propertyContext = [];
+        // 2. IA : Extraire les critères structurés
+        const criteria = await aiService.extractSearchCriteria(contenu);
+        console.log("Criteria extracted:", criteria);
 
-        if (keywords.length > 0) {
-            const searchQuery = `
-                SELECT * FROM logements 
-                WHERE titre ILIKE $1 OR localisation ILIKE $1 OR description ILIKE $1
-                LIMIT 5
-            `;
-            const searchResult = await query(searchQuery, [`%${keywords[0]}%`]);
-            propertyContext = searchResult.rows;
+        // 3. BDD : Recherche dynamique basée sur l'IA
+        let propertyContext = [];
+        let sql = `SELECT * FROM logements WHERE statut = 'disponible'`;
+        const params = [];
+
+        if (criteria.prix_max) {
+            params.push(criteria.prix_max);
+            sql += ` AND price <= $${params.length}`;
+        }
+        if (criteria.quartier) {
+            params.push(`%${criteria.quartier}%`);
+            sql += ` AND localisation ILIKE $${params.length}`;
+        }
+        if (criteria.type) {
+            params.push(criteria.type);
+            sql += ` AND exigences->>'type' = $${params.length}`;
         }
 
-        // 3. Appeler le service IA avec le contexte
+        sql += ` LIMIT 3`; // On limite à 3 pour le chat
+
+        const searchResult = await query(sql, params);
+        propertyContext = searchResult.rows;
+
+        // 4. IA : Générer la réponse finale avec le contexte réel
         const aiResponse = await aiService.generateResponse(contenu, propertyContext);
 
-        // 4. Sauvegarder et retourner la réponse de l'IA
+        // 5. Sauvegarder et retourner la réponse
         const savedAIMsg = await query(
             'INSERT INTO messages_ia (role, contenu, id_conversation) VALUES ($1, $2, $3) RETURNING *',
             ['assistant', aiResponse, id_conversation]
         );
 
-        res.status(201).json(savedAIMsg.rows[0]);
+        // On ajoute les résultats structurés pour que le frontend puisse les afficher en cartes
+        const responseData = {
+            ...savedAIMsg.rows[0],
+            results: propertyContext
+        };
+
+        res.status(201).json(responseData);
     } catch (error) {
-        console.error("AI Chat Error:", error);
-        res.status(500).json({ message: "Erreur lors du chat IA" });
+        console.error("AI Controller Error:", error);
+        res.status(500).json({ message: "Erreur lors de l'analyse IA" });
     }
 };
 

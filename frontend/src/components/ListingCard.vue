@@ -24,9 +24,9 @@
       <!-- Content Overlay -->
       <div class="absolute bottom-4 left-4 right-4 text-white">
         <p class="text-xs font-medium opacity-80 flex items-center gap-1">
-          <span class="material-symbols-outlined text-[14px]">location_on</span> {{ listing.neighborhood || listing.city }}
+          <span class="material-symbols-outlined text-[14px] notranslate" translate="no">location_on</span> {{ listing.localisation }}
         </p>
-        <h3 class="text-lg font-bold leading-tight mt-1">{{ listing.title }}</h3>
+        <h3 class="text-lg font-bold leading-tight mt-1">{{ listing.titre }}</h3>
         <div class="flex items-center justify-between mt-3">
           <span class="text-lg font-extrabold text-accent-gold">
             {{ formatPrice(listing.price) }} <span class="text-[10px] font-normal text-white/70">/mois</span>
@@ -48,27 +48,27 @@
         @error="handleImageError"
       />
       <div v-if="listing.is_verified" class="absolute top-2 right-2 flex items-center justify-center size-5 bg-primary text-white rounded-full shadow-lg border-2 border-white dark:border-neutral-800">
-        <span class="material-symbols-outlined text-[10px] font-black">check</span>
+        <span class="material-symbols-outlined text-[10px] font-black notranslate" translate="no">check</span>
       </div>
     </div>
     
     <div class="flex flex-col justify-between py-1 flex-1 min-w-0">
       <div>
-        <h4 class="font-bold text-sm leading-tight text-gray-900 dark:text-white truncate">{{ listing.title }}</h4>
+        <h4 class="font-bold text-sm leading-tight text-gray-900 dark:text-white truncate">{{ listing.titre }}</h4>
         <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1 flex items-center gap-1 truncate">
-          <span class="material-symbols-outlined text-[12px]">location_on</span> {{ listing.neighborhood || listing.city }}
+          <span class="material-symbols-outlined text-[12px] notranslate" translate="no">location_on</span> {{ listing.localisation }}
         </p>
       </div>
       
       <div class="flex items-center gap-3 mt-2 text-neutral-500 dark:text-neutral-400">
-        <span v-if="listing.bedrooms" class="flex items-center gap-1 text-[10px] font-semibold">
-          <span class="material-symbols-outlined text-[14px]">bed</span> {{ listing.bedrooms }}
+        <span v-if="listing.exigences?.chambres" class="flex items-center gap-1 text-[10px] font-semibold">
+          <span class="material-symbols-outlined text-[14px] notranslate" translate="no">bed</span> {{ listing.exigences.chambres }}
         </span>
-        <span v-if="listing.bathrooms" class="flex items-center gap-1 text-[10px] font-semibold">
-          <span class="material-symbols-outlined text-[14px]">bathtub</span> {{ listing.bathrooms }}
+        <span v-if="listing.exigences?.salles_de_bain" class="flex items-center gap-1 text-[10px] font-semibold">
+          <span class="material-symbols-outlined text-[14px] notranslate" translate="no">bathtub</span> {{ listing.exigences.salles_de_bain }}
         </span>
-        <span v-if="listing.surface_area" class="flex items-center gap-1 text-[10px] font-semibold">
-          <span class="material-symbols-outlined text-[14px]">square_foot</span> {{ listing.surface_area }}m²
+        <span v-if="listing.exigences?.surface" class="flex items-center gap-1 text-[10px] font-semibold">
+          <span class="material-symbols-outlined text-[14px] notranslate" translate="no">square_foot</span> {{ listing.exigences.surface }}m²
         </span>
       </div>
       
@@ -76,8 +76,10 @@
         <span class="text-primary dark:text-accent-gold font-extrabold text-sm">{{ formatPrice(listing.price) }}</span>
         <button @click.stop.prevent="toggleFavorite" class="p-1 group/fav">
           <span 
-            class="material-symbols-outlined text-lg transition-all"
-            :class="listing.is_favorited ? 'text-primary fill-1' : 'text-neutral-300'"
+            class="material-symbols-outlined text-lg transition-all notranslate"
+            translate="no"
+            :class="listing.is_favorited ? 'text-primary' : 'text-neutral-300'"
+            :style="listing.is_favorited ? 'font-variation-settings: \'FILL\' 1' : ''"
           >
             favorite
           </span>
@@ -106,7 +108,8 @@
       
       <button @click.stop.prevent="toggleFavorite" class="absolute top-4 right-4 p-2.5 bg-white/30 backdrop-blur-md rounded-full text-white shadow-xl hover:bg-white hover:text-red-500 transition-all active:scale-75">
         <span 
-          class="material-symbols-outlined text-[22px]"
+          class="material-symbols-outlined text-[22px] notranslate"
+          translate="no"
           :style="listing.is_favorited ? 'font-variation-settings: \'FILL\' 1' : ''"
         >
           favorite
@@ -121,13 +124,13 @@
     </div>
     
     <div class="p-6 pt-5">
-      <p class="text-[9px] font-black text-primary/60 uppercase tracking-[0.2em] mb-1">{{ getPropertyTypeLabel(listing.property_type) }}</p>
+      <p class="text-[9px] font-black text-primary/60 uppercase tracking-[0.2em] mb-1">{{ getPropertyTypeLabel(listing.exigences?.type) }}</p>
       <h3 class="text-base font-black text-gray-900 dark:text-white mb-2 line-clamp-2 leading-tight group-hover:text-primary transition-colors">
-        {{ listing.title }}
+        {{ listing.titre }}
       </h3>
       <div class="flex items-center gap-1.5 text-neutral-400 text-[10px] font-bold">
-        <span class="material-symbols-outlined text-[16px] text-primary">location_on</span>
-        {{ listing.city }}{{ listing.neighborhood ? ` • ${listing.neighborhood}` : '' }}
+        <span class="material-symbols-outlined text-[16px] text-primary notranslate" translate="no">location_on</span>
+        {{ listing.localisation }}
       </div>
     </div>
   </div>
@@ -149,7 +152,9 @@ const listingsStore = useListingsStore();
 const authStore = useAuthStore();
 
 const mainImage = computed(() => {
-  return props.listing.images?.[0]?.full_url || props.listing.images?.[0]?.url || 'http://localhost:8000/static/placeholder-house.svg';
+  const img = props.listing.images?.[0];
+  if (!img) return 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80';
+  return typeof img === 'string' ? img : (img.full_url || img.url);
 });
 
 const isNew = computed(() => {
@@ -164,7 +169,7 @@ const formatPrice = (price) => {
     currency: 'GNF',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
-  }).format(price).replace('GNF', 'GNF').trim();
+  }).format(price).trim();
 };
 
 const getPropertyTypeLabel = (type) => {
@@ -180,7 +185,7 @@ const getPropertyTypeLabel = (type) => {
 };
 
 const handleImageError = (event) => {
-  event.target.src = 'http://localhost:8000/static/placeholder-house.svg';
+  event.target.src = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80';
 };
 
 const toggleFavorite = async () => {

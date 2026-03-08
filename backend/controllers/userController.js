@@ -1,4 +1,5 @@
 const { query } = require('../config/database');
+const bcrypt = require('bcryptjs');
 
 // @desc    Obtenir tous les utilisateurs (Admin uniquement recommandé)
 // @route   GET /api/utilisateurs
@@ -65,3 +66,46 @@ exports.getMyFavorites = async (req, res) => {
     }
 };
 
+// @desc    Mettre à jour le profil de l'utilisateur connecté
+// @route   PUT /api/utilisateurs/me
+exports.updateProfile = async (req, res) => {
+    const { name, email, phone } = req.body;
+    try {
+        const result = await query(
+            `UPDATE users
+             SET name = COALESCE($1, name),
+                 email = COALESCE($2, email),
+                 phone = COALESCE($3, phone)
+             WHERE id = $4
+             RETURNING id, name, email, role, phone, photo, created_at`,
+            [name, email, phone, req.user.id]
+        );
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+        res.json({ success: true, user: result.rows[0] });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Changer le mot de passe
+// @route   PUT /api/utilisateurs/me/password
+exports.updatePassword = async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    try {
+        const result = await query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+        const user = result.rows[0];
+        if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) return res.status(400).json({ message: 'Mot de passe actuel incorrect' });
+
+        const salt = await bcrypt.genSalt(10);
+        const hashed = await bcrypt.hash(newPassword, salt);
+        await query('UPDATE users SET password = $1 WHERE id = $2', [hashed, req.user.id]);
+        res.json({ success: true, message: 'Mot de passe mis à jour avec succès' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
