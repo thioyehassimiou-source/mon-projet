@@ -3,7 +3,7 @@
  * Uses native fetch() to connect Stitch frontend to Node.js backend
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://guineelogement-api.onrender.com/api';
 
 /**
  * Helper to handle fetch requests with JWT authentication
