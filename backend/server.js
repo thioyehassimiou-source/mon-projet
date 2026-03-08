@@ -13,12 +13,21 @@ const allowedOrigins = [
     'http://127.0.0.1:5173',
     'http://127.0.0.1:5174',
     process.env.FRONTEND_URL,
+    'https://frontend-arc7iqel4-hassimious-projects.vercel.app',
+    /\.vercel\.app$/, // Autorise tous les sous-domaines Vercel
     'https://guinealogement.app'
 ].filter(Boolean);
 
 const corsOptions = {
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        if (!origin) return callback(null, true);
+
+        const isAllowed = allowedOrigins.some(ao => {
+            if (ao instanceof RegExp) return ao.test(origin);
+            return ao === origin;
+        });
+
+        if (isAllowed) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
@@ -55,11 +64,38 @@ app.get('/test-db', async (req, res) => {
             time: result.rows[0].now
         });
     } catch (error) {
+        console.error('DB Test Error:', error);
         res.status(500).json({
             success: false,
-            error: error.message
+            error: error.message || 'Unknown error',
+            code: error.code || 'UNKNOWN',
+            hint: !process.env.DATABASE_URL ? 'DATABASE_URL is NOT set. Please configure it in Render environment variables.' : 'DATABASE_URL is set but connection failed.'
         });
     }
+});
+
+// Health Check - Diagnostic endpoint
+app.get('/api/health', async (req, res) => {
+    const dbStatus = { connected: false };
+    try {
+        const result = await query('SELECT NOW() as now');
+        dbStatus.connected = true;
+        dbStatus.time = result.rows[0].now;
+    } catch (error) {
+        dbStatus.error = error.message || 'Connection failed';
+        dbStatus.code = error.code;
+    }
+
+    res.json({
+        status: dbStatus.connected ? 'healthy' : 'unhealthy',
+        api: 'running',
+        database: dbStatus,
+        environment: {
+            DATABASE_URL_SET: !!process.env.DATABASE_URL,
+            NODE_ENV: process.env.NODE_ENV || 'not set',
+            FRONTEND_URL: process.env.FRONTEND_URL || 'not set'
+        }
+    });
 });
 
 // Importation des routes

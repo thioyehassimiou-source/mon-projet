@@ -97,17 +97,17 @@ import { ref, onMounted } from 'vue';
 const activeTab = ref('logements');
 const pendingListings = ref([]);
 const pendingUsers = ref([]);
-const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const baseUrl = import.meta.env.VITE_API_URL || 'https://guineelogement-api.onrender.com/api';
 
 const fetchPending = async () => {
   const token = localStorage.getItem('token');
   try {
-    const resListings = await fetch(`${baseUrl}/api/admin/pending-listings`, {
+    const resListings = await fetch(`${baseUrl}/admin/pending-listings`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     pendingListings.value = await resListings.json();
 
-    const resUsers = await fetch(`${baseUrl}/api/admin/pending-users`, {
+    const resUsers = await fetch(`${baseUrl}/admin/pending-users`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     pendingUsers.value = await resUsers.json();
@@ -119,7 +119,7 @@ const fetchPending = async () => {
 const updateStatus = async (id, status) => {
   const token = localStorage.getItem('token');
   try {
-    await fetch(`${baseUrl}/api/admin/listings/${id}/status`, {
+    await fetch(`${baseUrl}/admin/listings/${id}/status`, {
       method: 'PUT',
       headers: { 
         'Authorization': `Bearer ${token}`,
@@ -136,7 +136,7 @@ const updateStatus = async (id, status) => {
 const validateUser = async (id) => {
   const token = localStorage.getItem('token');
   try {
-    await fetch(`${baseUrl}/api/admin/users/${id}/verify`, {
+    await fetch(`${baseUrl}/admin/users/${id}/verify`, {
       method: 'PUT',
       headers: { 
         'Authorization': `Bearer ${token}`,

@@ -413,8 +413,8 @@ const uploadKYC = async () => {
 
   try {
     const token = localStorage.getItem('token');
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/auth/upload-kyc`, {
+    const baseUrl = import.meta.env.VITE_API_URL || 'https://guineelogement-api.onrender.com/api';
+    const response = await fetch(`${baseUrl}/auth/upload-kyc`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`
