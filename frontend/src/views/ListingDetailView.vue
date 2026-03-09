@@ -54,8 +54,7 @@
         </div>
         <h1 class="text-3xl font-bold leading-tight mb-2">{{ listing.titre }}</h1>
         <div class="flex items-center gap-1 text-zinc-500 dark:text-zinc-400 text-sm mb-4">
-          <span class="material-symbols-outlined text-sm">location_on</span>
-          <span>{{ listing.localisation }}</span>
+          <span class="font-medium">{{ formattedLocation }}</span>
         </div>
         <div class="text-primary dark:text-primary/90 text-2xl font-bold">
           {{ formatPrice(listing.price) }} <span class="text-sm font-medium text-zinc-500">/ mois</span>
@@ -133,15 +132,17 @@
           <h3 class="text-lg font-bold">Localisation</h3>
           <button @click="openInMaps" class="text-xs font-bold text-primary uppercase tracking-wider">Ouvrir Plans</button>
         </div>
-        <div class="w-full h-48 rounded-xl overflow-hidden relative border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-800">
-           <div class="absolute inset-0 flex items-center justify-center">
-             <div class="size-12 rounded-full bg-primary/20 flex items-center justify-center border-4 border-white/50 animate-pulse">
-               <div class="size-4 rounded-full bg-primary shadow-lg"></div>
-             </div>
-           </div>
+        <div class="w-full h-64 rounded-xl overflow-hidden relative border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-800">
+           <iframe 
+             width="100%" 
+             height="100%" 
+             frameborder="0" 
+             style="border:0;" 
+             :src="`https://maps.google.com/maps?q=${encodeURIComponent(listing.localisation + ', Guinea')}&t=&z=14&ie=UTF8&iwloc=&output=embed`"
+           ></iframe>
            <!-- Local text hint -->
-           <div class="absolute bottom-2 left-2 bg-white/80 dark:bg-black/40 backdrop-blur-sm px-2 py-1 rounded text-[10px] uppercase font-black">
-             {{ listing.localisation }}
+           <div class="absolute bottom-2 left-2 bg-white/90 dark:bg-black/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-[10px] uppercase font-black shadow-lg">
+             {{ formattedLocation }}
            </div>
         </div>
       </section>
@@ -243,6 +244,23 @@ const getPropertyTypeLabel = (type) => {
   return labels[type] || type;
 };
 
+const formattedLocation = computed(() => {
+  if (!listing.value?.localisation) return '📍 Localisation non spécifiée';
+  
+  const parts = listing.value.localisation.split(',').map(p => p.trim());
+  if (parts.length >= 3) {
+    // Format typique en BDD: "Kipé, Ratoma, Conakry"
+    // Output souhaité: "📍 Conakry, Ratoma – Kipé"
+    const quartier = parts[0];
+    const commune = parts[1];
+    const ville = parts[parts.length - 1];
+    return `📍 ${ville}, ${commune} \u2013 ${quartier}`;
+  } else if (parts.length === 2) {
+    return `📍 ${parts[1]}, ${parts[0]}`;
+  }
+  return `📍 ${listing.value.localisation}`;
+});
+
 const goBack = () => router.go(-1);
 
 const toggleFavorite = async () => {
@@ -304,7 +322,7 @@ const initiateBooking = async () => {
 
 const openInMaps = () => {
   if (listing.value) {
-    const q = encodeURIComponent(`${listing.value.neighborhood}, ${listing.value.city}, Guinea`);
+    const q = encodeURIComponent(`${listing.value.localisation}, Guinée`);
     window.open(`https://www.google.com/maps/search/?api=1&query=${q}`);
   }
 };

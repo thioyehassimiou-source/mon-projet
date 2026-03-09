@@ -24,7 +24,7 @@
               <span class="material-symbols-outlined text-4xl">person</span>
             </div>
           </div>
-          <button class="absolute bottom-1 right-1 bg-primary text-white p-2.5 rounded-2xl shadow-lg border-2 border-white dark:border-slate-900 active:scale-90 transition-transform">
+          <button @click="activeSection = 'profile'" class="absolute bottom-1 right-1 bg-primary text-white p-2.5 rounded-2xl shadow-lg border-2 border-white dark:border-slate-900 active:scale-90 transition-transform">
             <span class="material-symbols-outlined text-sm font-black">edit</span>
           </button>
         </div>
@@ -32,7 +32,54 @@
           <p class="text-slate-900 dark:text-slate-100 text-2xl font-black leading-tight tracking-tight">{{ user?.name || 'Utilisateur' }}</p>
           <p class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-widest">{{ user?.localisation || 'Conakry, Guinée' }}</p>
         </div>
+
+        <!-- Action Buttons Grid -->
+        <div class="grid grid-cols-3 gap-3 w-full max-w-sm mt-6">
+          <button @click="activeSection = 'profile'" class="flex flex-col items-center justify-center p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+            <span class="material-symbols-outlined text-primary mb-1">edit</span>
+            <span class="text-[9px] font-black uppercase text-slate-600">Modifier</span>
+          </button>
+          <button @click="$router.push('/favoris')" class="flex flex-col items-center justify-center p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+            <span class="material-symbols-outlined text-rose-500 mb-1">favorite</span>
+            <span class="text-[9px] font-black uppercase text-slate-600">Favoris</span>
+          </button>
+          <button @click="$router.push('/listings')" class="flex flex-col items-center justify-center p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+            <span class="material-symbols-outlined text-emerald-500 mb-1">real_estate_agent</span>
+            <span class="text-[9px] font-black uppercase text-slate-600">Annonces</span>
+          </button>
+          <button @click="$router.push('/messages')" class="flex flex-col items-center justify-center p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm col-span-1">
+            <span class="material-symbols-outlined text-blue-500 mb-1">chat</span>
+            <span class="text-[9px] font-black uppercase text-slate-600">Messages</span>
+          </button>
+          <button @click="activeSection = 'security'" class="flex flex-col items-center justify-center p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm col-span-2">
+            <span class="material-symbols-outlined text-slate-500 mb-1">settings</span>
+            <span class="text-[9px] font-black uppercase text-slate-600">Paramètres</span>
+          </button>
+        </div>
       </div>
+
+      <!-- Sections dynamiques Mobile (qui mapped sur activeSection) -->
+      <div v-if="activeSection === 'profile'" class="px-6 py-4">
+         <h3 class="text-lg font-black mb-4">Modifier le Profil</h3>
+         <form @submit.prevent="updateProfile" class="space-y-4">
+            <div>
+               <label class="block text-xs font-bold text-slate-500 mb-1">Prénom</label>
+               <input v-model="form.prenom" type="text" class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary" />
+            </div>
+            <div>
+               <label class="block text-xs font-bold text-slate-500 mb-1">Nom</label>
+               <input v-model="form.nom" type="text" class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary" />
+            </div>
+            <div>
+               <label class="block text-xs font-bold text-slate-500 mb-1">Téléphone</label>
+               <input v-model="form.phone" type="text" class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary" />
+            </div>
+            <button type="submit" class="w-full bg-primary text-white font-bold p-3 rounded-xl mt-4">Enregistrer</button>
+         </form>
+      </div>
+
+      <!-- Condition pour cacher le reste si on edite -->
+      <div v-show="activeSection !== 'profile'">
 
       <!-- Identity Verification -->
       <div class="px-6 pb-6">
@@ -121,8 +168,10 @@
             </div>
           </button>
         </div>
+        </div>
       </div>
-      
+      </div> <!-- End v-show conditionnel -->
+
       <!-- Bottom Nav (Mobile) -->
       <nav class="fixed bottom-0 left-0 right-0 z-[100] bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800 px-4 pb-8 pt-2">
         <div class="flex justify-between items-center max-w-md mx-auto">
@@ -447,12 +496,11 @@ const formatDate = (dateString) => {
 // -----------------
 
 const navItems = [
-  { id: 'dashboard', label: 'Tableau de bord', icon: 'dashboard' },
-  { id: 'profile', label: 'Profil Personnel', icon: 'person' },
-  { id: 'kyc', label: 'Identité KYC', icon: 'verified_user' },
-  { id: 'security', label: 'Sécurité & Accès', icon: 'security' },
-  { id: 'notifications', label: 'Notifications', icon: 'notifications' },
-  { id: 'payments', label: 'Portefeuille', icon: 'payments' },
+  { id: 'profile', label: 'Modifier le profil', icon: 'edit' },
+  { id: 'favoris', label: 'Favoris', icon: 'favorite', path: '/favoris' },
+  { id: 'annonces', label: 'Mes annonces', icon: 'real_estate_agent', path: '/listings' },
+  { id: 'messages', label: 'Messages', icon: 'chat', path: '/messages' },
+  { id: 'security', label: 'Paramètres', icon: 'settings' },
   { id: 'aide', label: 'Centre d\'Aide', icon: 'help_center', path: '/aide' },
 ];
 
