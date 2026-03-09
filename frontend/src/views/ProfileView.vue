@@ -168,7 +168,6 @@
             </div>
           </button>
         </div>
-        </div>
       </div>
       </div> <!-- End v-show conditionnel -->
 
