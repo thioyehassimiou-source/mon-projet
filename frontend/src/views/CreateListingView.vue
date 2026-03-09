@@ -68,6 +68,7 @@
                 <option value="appartement">Appartement</option>
                 <option value="maison">Maison / Villa</option>
                 <option value="studio">Studio</option>
+                <option value="chambre">Chambre</option>
                 <option value="bureau">Bureau</option>
                 <option value="terrain">Terrain</option>
               </select>

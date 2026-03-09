@@ -24,7 +24,7 @@
               <span class="material-symbols-outlined text-4xl">person</span>
             </div>
           </div>
-          <button @click="activeSection = 'profile'" class="absolute bottom-1 right-1 bg-primary text-white p-2.5 rounded-2xl shadow-lg border-2 border-white dark:border-slate-900 active:scale-90 transition-transform">
+          <button @click="showMobileEdit = true" class="absolute bottom-1 right-1 bg-primary text-white p-2.5 rounded-2xl shadow-lg border-2 border-white dark:border-slate-900 active:scale-90 transition-transform">
             <span class="material-symbols-outlined text-sm font-black">edit</span>
           </button>
         </div>
@@ -32,54 +32,7 @@
           <p class="text-slate-900 dark:text-slate-100 text-2xl font-black leading-tight tracking-tight">{{ user?.name || 'Utilisateur' }}</p>
           <p class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-widest">{{ user?.localisation || 'Conakry, Guinée' }}</p>
         </div>
-
-        <!-- Action Buttons Grid -->
-        <div class="grid grid-cols-3 gap-3 w-full max-w-sm mt-6">
-          <button @click="activeSection = 'profile'" class="flex flex-col items-center justify-center p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
-            <span class="material-symbols-outlined text-primary mb-1">edit</span>
-            <span class="text-[9px] font-black uppercase text-slate-600">Modifier</span>
-          </button>
-          <button @click="$router.push('/favoris')" class="flex flex-col items-center justify-center p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
-            <span class="material-symbols-outlined text-rose-500 mb-1">favorite</span>
-            <span class="text-[9px] font-black uppercase text-slate-600">Favoris</span>
-          </button>
-          <button @click="$router.push('/listings')" class="flex flex-col items-center justify-center p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
-            <span class="material-symbols-outlined text-emerald-500 mb-1">real_estate_agent</span>
-            <span class="text-[9px] font-black uppercase text-slate-600">Annonces</span>
-          </button>
-          <button @click="$router.push('/messages')" class="flex flex-col items-center justify-center p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm col-span-1">
-            <span class="material-symbols-outlined text-blue-500 mb-1">chat</span>
-            <span class="text-[9px] font-black uppercase text-slate-600">Messages</span>
-          </button>
-          <button @click="activeSection = 'security'" class="flex flex-col items-center justify-center p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm col-span-2">
-            <span class="material-symbols-outlined text-slate-500 mb-1">settings</span>
-            <span class="text-[9px] font-black uppercase text-slate-600">Paramètres</span>
-          </button>
-        </div>
       </div>
-
-      <!-- Sections dynamiques Mobile (qui mapped sur activeSection) -->
-      <div v-if="activeSection === 'profile'" class="px-6 py-4">
-         <h3 class="text-lg font-black mb-4">Modifier le Profil</h3>
-         <form @submit.prevent="updateProfile" class="space-y-4">
-            <div>
-               <label class="block text-xs font-bold text-slate-500 mb-1">Prénom</label>
-               <input v-model="form.prenom" type="text" class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary" />
-            </div>
-            <div>
-               <label class="block text-xs font-bold text-slate-500 mb-1">Nom</label>
-               <input v-model="form.nom" type="text" class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary" />
-            </div>
-            <div>
-               <label class="block text-xs font-bold text-slate-500 mb-1">Téléphone</label>
-               <input v-model="form.phone" type="text" class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary" />
-            </div>
-            <button type="submit" class="w-full bg-primary text-white font-bold p-3 rounded-xl mt-4">Enregistrer</button>
-         </form>
-      </div>
-
-      <!-- Condition pour cacher le reste si on edite -->
-      <div v-show="activeSection !== 'profile'">
 
       <!-- Identity Verification -->
       <div class="px-6 pb-6">
@@ -115,6 +68,42 @@
             </div>
             <span class="material-symbols-outlined text-slate-300 text-xl font-light">chevron_right</span>
           </div>
+        </div>
+      </div>
+
+      <!-- Activity Section -->
+      <div class="px-6 py-2">
+        <h3 class="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-4 px-1">Mon Activité</h3>
+        <div class="space-y-3">
+          <button @click="$router.push('/favoris')" class="w-full flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 active:scale-[0.98] transition-all shadow-sm">
+            <div class="flex items-center gap-4">
+              <div class="size-10 bg-rose-50 dark:bg-rose-900/20 rounded-xl flex items-center justify-center text-rose-500">
+                <span class="material-symbols-outlined text-xl">favorite</span>
+              </div>
+              <p class="text-sm font-black text-slate-900 dark:text-white">Mes Favoris</p>
+            </div>
+            <span class="material-symbols-outlined text-slate-300 text-xl font-light">chevron_right</span>
+          </button>
+          
+          <button @click="$router.push('/listings')" class="w-full flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 active:scale-[0.98] transition-all shadow-sm">
+            <div class="flex items-center gap-4">
+              <div class="size-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-xl">list_alt</span>
+              </div>
+              <p class="text-sm font-black text-slate-900 dark:text-white">Mes Annonces</p>
+            </div>
+            <span class="material-symbols-outlined text-slate-300 text-xl font-light">chevron_right</span>
+          </button>
+          
+          <button @click="$router.push('/messages')" class="w-full flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 active:scale-[0.98] transition-all shadow-sm">
+            <div class="flex items-center gap-4">
+              <div class="size-10 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center text-emerald-500">
+                <span class="material-symbols-outlined text-xl">chat_bubble</span>
+              </div>
+              <p class="text-sm font-black text-slate-900 dark:text-white">Messages</p>
+            </div>
+            <span class="material-symbols-outlined text-slate-300 text-xl font-light">chevron_right</span>
+          </button>
         </div>
       </div>
 
@@ -169,8 +158,7 @@
           </button>
         </div>
       </div>
-      </div> <!-- End v-show conditionnel -->
-
+      
       <!-- Bottom Nav (Mobile) -->
       <nav class="fixed bottom-0 left-0 right-0 z-[100] bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800 px-4 pb-8 pt-2">
         <div class="flex justify-between items-center max-w-md mx-auto">
@@ -186,6 +174,43 @@
           </a>
         </div>
       </nav>
+      <!-- Edit Profile Mobile Sheet -->
+      <div v-if="showMobileEdit" class="fixed inset-0 z-[110] bg-white dark:bg-slate-900 overflow-y-auto flex flex-col pt-4 px-6 pb-24 duration-300 transform transition-transform">
+         <header class="flex items-center justify-between mb-8 sticky top-0 bg-white dark:bg-slate-900 py-4 z-10 border-b border-slate-100 dark:border-slate-800">
+           <button @click="showMobileEdit = false" class="text-primary dark:text-slate-100 flex size-10 items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-full">
+             <span class="material-symbols-outlined">close</span>
+           </button>
+           <h2 class="text-lg font-black tracking-tight flex-1 text-center">Modifier mon profil</h2>
+           <div class="w-10"></div>
+         </header>
+         <form @submit.prevent="updateProfile(); showMobileEdit = false" class="space-y-6">
+           <div class="space-y-2">
+             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Prénom</label>
+             <input v-model="form.prenom" class="w-full px-5 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm font-bold shadow-inner" type="text" />
+           </div>
+           <div class="space-y-2">
+             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Nom</label>
+             <input v-model="form.nom" class="w-full px-5 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm font-bold shadow-inner" type="text" />
+           </div>
+           <div class="space-y-2">
+             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Téléphone</label>
+             <input v-model="form.phone" class="w-full px-5 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm font-bold shadow-inner" type="tel" />
+           </div>
+           <div class="space-y-2">
+             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Ville</label>
+             <select v-model="form.city" class="w-full px-5 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm font-bold shadow-inner">
+               <option value="Conakry">Conakry</option>
+               <option value="Kindia">Kindia</option>
+               <option value="Labé">Labé</option>
+               <option value="Kankan">Kankan</option>
+             </select>
+           </div>
+           <button class="w-full mt-4 bg-primary text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 shadow-lg shadow-primary/30" type="submit">
+             Enregistrer
+           </button>
+         </form>
+      </div>
+
     </div>
 
     <!-- DESKTOP VIEW (lg:flex) -->
@@ -209,7 +234,7 @@
                @click.prevent="item.id === 'logout' ? handleLogout() : (item.path ? $router.push(item.path) : activeSection = item.id)"
                :class="[
                  'flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200',
-                 activeSection === item.id 
+                 activeSection === item.id || $route.path === item.path
                    ? 'bg-primary/10 text-primary' 
                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                ]"
@@ -431,6 +456,7 @@ import { userService, listingService } from '@/services/api-fetch'; // Added lis
 const router = useRouter();
 const authStore = useAuthStore();
 
+const showMobileEdit = ref(false);
 const activeSection = ref('profile');
 const user = computed(() => authStore.user);
 
@@ -495,11 +521,13 @@ const formatDate = (dateString) => {
 // -----------------
 
 const navItems = [
-  { id: 'profile', label: 'Modifier le profil', icon: 'edit' },
-  { id: 'favoris', label: 'Favoris', icon: 'favorite', path: '/favoris' },
-  { id: 'annonces', label: 'Mes annonces', icon: 'real_estate_agent', path: '/listings' },
-  { id: 'messages', label: 'Messages', icon: 'chat', path: '/messages' },
-  { id: 'security', label: 'Paramètres', icon: 'settings' },
+  { id: 'dashboard', label: 'Tableau de bord', icon: 'dashboard', path: '/admin/dashboard' },
+  { id: 'profile', label: 'Profil Personnel', icon: 'person' },
+  { id: 'listings', label: 'Mes Annonces', icon: 'list_alt', path: '/listings' },
+  { id: 'favorites', label: 'Mes Favoris', icon: 'favorite', path: '/favoris' },
+  { id: 'messages', label: 'Messages', icon: 'chat_bubble', path: '/messages' },
+  { id: 'kyc', label: 'Identité KYC', icon: 'verified_user' },
+  { id: 'security', label: 'Sécurité & Accès', icon: 'security' },
   { id: 'aide', label: 'Centre d\'Aide', icon: 'help_center', path: '/aide' },
 ];
 

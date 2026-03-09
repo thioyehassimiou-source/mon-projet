@@ -36,15 +36,10 @@ class AIService {
             const completion = await this.groq.chat.completions.create({
                 messages: [{ role: "user", content: extractionPrompt }],
                 model: "llama3-8b-8192",
-                temperature: 0
+                temperature: 0,
+                response_format: { type: "json_object" }
             });
-            // Try to extract JSON from the text, as the model might wrap it in markdown block ```json ... ```
-            const textResponse = completion.choices[0].message.content;
-            const jsonPart = textResponse.match(/\{[\s\S]*\}/);
-            if (jsonPart) {
-                return JSON.parse(jsonPart[0]);
-            }
-            return JSON.parse(textResponse);
+            return JSON.parse(completion.choices[0].message.content);
         } catch (error) {
             console.error("Extraction Error:", error.message);
             return { type: null, quartier: null, prix_max: null };
@@ -87,8 +82,7 @@ class AIService {
             return completion.choices[0]?.message?.content || "Désolé, je ne peux pas répondre pour le moment.";
         } catch (error) {
             console.error("GROQ API Error:", error.message);
-            // Fallback robuste au lieu de planter l'API
-            return "Désolé, je rencontre une erreur technique momentanée (connexion à mon cerveau IA). 😅 Cependant, pour vous aider, je vous invite à consulter directement nos annonces récentes ci-dessous, ou à explorer la rubrique Recherche !";
+            return "Désolé, je rencontre des difficultés techniques pour le moment. Voulez-vous voir :\n\n• Les logements à Conakry\n• Les appartements disponibles\n• Les annonces récentes ?";
         }
     }
 }
