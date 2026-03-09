@@ -148,15 +148,33 @@
       </section>
       
       <!-- Host Info -->
-      <section class="mt-8 px-4 mb-20">
+      <!-- Host Info -->
+      <section class="mt-8 px-4">
         <div class="p-4 bg-white dark:bg-zinc-800/50 rounded-2xl border border-black/5 dark:border-white/5 flex items-center gap-4">
           <div class="size-14 rounded-xl bg-primary text-white flex items-center justify-center text-2xl font-bold">
-            {{ listing.owner_display?.[0] }}
+            {{ listing.owner_display?.[0] || 'O' }}
           </div>
           <div>
-            <p class="font-bold">{{ listing.owner_display }}</p>
+            <p class="font-bold">{{ listing.owner_display || 'Propriétaire' }}</p>
             <p class="text-[10px] font-bold uppercase text-primary tracking-widest">Hôte vérifié GuineaLogement</p>
           </div>
+        </div>
+      </section>
+
+      <!-- Action Buttons (Inline pour plus de visibilité) -->
+      <section class="mt-10 px-4 mb-24">
+        <h3 class="text-xl font-black mb-4">Intéressé(e) ?</h3>
+        <div class="flex flex-col gap-4">
+          <button @click="initiateBooking" :disabled="isPaying" class="w-full h-14 bg-primary text-white font-black rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-primary/20 active:scale-[0.98] transition-transform disabled:opacity-50 text-[13px] uppercase tracking-widest">
+            <span v-if="!isPaying" class="material-symbols-outlined font-black">payments</span>
+            <div v-else class="size-5 border-2 border-white border-t-transparent animate-spin rounded-full"></div>
+            {{ isPaying ? 'Initialisation...' : 'Réserver ce bien' }}
+          </button>
+          
+          <button @click="contactOwner" class="w-full h-14 border-2 border-primary text-primary font-black rounded-xl flex items-center justify-center gap-2 bg-transparent active:scale-[0.98] transition-transform text-[13px] uppercase tracking-widest">
+            <span class="material-symbols-outlined font-black">chat_bubble</span>
+            Discuter avec le propriétaire
+          </button>
         </div>
       </section>
     </main>
