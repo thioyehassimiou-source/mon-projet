@@ -154,7 +154,9 @@ const authStore = useAuthStore();
 
 const selectedCategory = ref('Tous');
 const premiumListings = computed(() => {
-  const list = (listingsStore.listings || []).filter(l => l.is_premium);
+  let list = (listingsStore.listings || []).filter(l => l.is_premium);
+  if (list.length === 0) list = (listingsStore.listings || []); // Fallback to avoid empty static page
+  
   if (selectedCategory.value === 'Tous') {
     return list.slice(0, 6);
   }

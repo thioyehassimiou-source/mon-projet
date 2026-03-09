@@ -447,7 +447,30 @@ onMounted(async () => {
   }
 });
 
-watch(messages, () => scrollToBottom(), { deep: true });
+watch(messages, () => {
+  scrollToBottom();
+  
+  // Phase 5: Rend dynamiquement le panneau latéral (Side Panel) selon les résultats réels
+  const lastMsgWithResults = [...messages.value].reverse().find(m => m.results && m.results.length > 0);
+  if (lastMsgWithResults) {
+    const prop = lastMsgWithResults.results[0];
+    if (prop) {
+      contextInfo.value = {
+        location: prop.localisation || 'Guinée',
+        aiAdvice: `Bon choix ! Le secteur de ${prop.localisation} offre d'excellentes opportunités. Les annonces ici partent très vite !`,
+        stats: [
+          { label: 'Demande estimée', value: 'Élevée', percentage: 90, bgClass: 'bg-primary', colorClass: 'text-primary' },
+          { label: 'Offres correspondantes', value: String(lastMsgWithResults.results.length), percentage: 100, bgClass: 'bg-green-500', colorClass: 'text-green-600' }
+        ],
+        docs: [
+          { label: "Pièce d'identité valide", required: true },
+          { label: "Justificatif de revenus", required: true },
+          { label: "Caution (Généralement 3 mois)", required: false }
+        ]
+      };
+    }
+  }
+}, { deep: true });
 </script>
 
 <style>

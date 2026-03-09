@@ -35,7 +35,7 @@ class AIService {
         try {
             const completion = await this.groq.chat.completions.create({
                 messages: [{ role: "user", content: extractionPrompt }],
-                model: "mixtral-8x7b-32768",
+                model: "llama3-8b-8192",
                 temperature: 0,
                 response_format: { type: "json_object" }
             });
@@ -75,7 +75,7 @@ class AIService {
                     { role: "system", content: systemPrompt },
                     { role: "user", content: userQuery }
                 ],
-                model: "mixtral-8x7b-32768",
+                model: "llama3-8b-8192",
                 temperature: 0.3,
             });
 
