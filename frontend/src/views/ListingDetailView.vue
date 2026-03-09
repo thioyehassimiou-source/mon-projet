@@ -165,6 +165,23 @@
           </div>
         </div>
       </section>
+
+      <!-- Action Buttons (Inline pour plus de visibilité) -->
+      <section class="mt-10 px-4 mb-32">
+        <h3 class="text-xl font-black mb-4">Intéressé(e) ?</h3>
+        <div class="flex flex-col gap-4">
+          <button @click="initiateBooking" :disabled="isPaying" class="w-full h-14 bg-primary text-white font-black rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-primary/20 active:scale-[0.98] transition-transform disabled:opacity-50 text-[13px] uppercase tracking-widest">
+            <span v-if="!isPaying" class="material-symbols-outlined font-black">payments</span>
+            <div v-else class="size-5 border-2 border-white border-t-transparent animate-spin rounded-full"></div>
+            {{ isPaying ? 'Initialisation...' : 'Réserver ce bien' }}
+          </button>
+          
+          <button @click="contactOwner" class="w-full h-14 border-2 border-primary text-primary font-black rounded-xl flex items-center justify-center gap-2 bg-transparent active:scale-[0.98] transition-transform text-[13px] uppercase tracking-widest">
+            <span class="material-symbols-outlined font-black">chat_bubble</span>
+            Discuter avec le propriétaire
+          </button>
+        </div>
+      </section>
     </main>
 
     <!-- Loading State -->
@@ -174,7 +191,7 @@
     </div>
 
     <!-- Bottom Sticky Action Bar -->
-    <div v-if="listing" class="fixed bottom-0 left-0 right-0 z-50 p-4 pb-8 glass-nav border-t border-black/5 dark:border-white/5">
+    <div v-if="listing" class="fixed bottom-0 left-0 right-0 z-50 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] glass-nav border-t border-black/5 dark:border-white/5 shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.1)]">
       <div class="flex items-center gap-4 max-w-[430px] mx-auto">
         <button @click="contactOwner" class="flex items-center justify-center size-14 rounded-xl border border-primary text-primary bg-transparent shrink-0 active:scale-95 transition-all">
           <span class="material-symbols-outlined">chat_bubble</span>
