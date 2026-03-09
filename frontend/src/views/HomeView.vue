@@ -172,7 +172,7 @@ const categories = [
   { type: 'apartment', name: 'Appartement', icon: 'apartment' },
   { type: 'villa', name: 'Villa', icon: 'villa' },
   { type: 'studio', name: 'Studio', icon: 'holiday_village' },
-  { type: 'chambre', name: 'Chambre', icon: 'bed' },
+  { type: 'chambre', name: 'Chambres', icon: 'bed' },
   { type: 'concession', name: 'Concession', icon: 'home_work' }
 ];
 

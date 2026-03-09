@@ -251,7 +251,7 @@ const propertyTypes = [
   { label: 'Appartement', value: 'apartment' },
   { label: 'Villa', value: 'villa' },
   { label: 'Studio', value: 'studio' },
-  { label: 'Chambre simple', value: 'chambre' },
+  { label: 'Chambres', value: 'chambre' },
   { label: 'Concession', value: 'concession' }
 ];
 

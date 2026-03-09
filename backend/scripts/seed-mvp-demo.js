@@ -105,7 +105,7 @@ async function seed() {
                 price: 1200000,
                 loc: "Matoto, Conakry",
                 type: "chambre",
-                premium: false,
+                premium: true,
                 verified: false,
                 rooms: 1,
                 baths: 1,
