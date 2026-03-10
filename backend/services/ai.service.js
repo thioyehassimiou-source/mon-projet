@@ -35,7 +35,7 @@ class AIService {
         try {
             const completion = await this.groq.chat.completions.create({
                 messages: [{ role: "user", content: extractionPrompt }],
-                model: "llama3-8b-8192",
+                model: "llama-3.1-8b-instant",
                 temperature: 0,
                 response_format: { type: "json_object" }
             });
@@ -52,7 +52,7 @@ class AIService {
         }
 
         const contextString = propertyContext.map(p =>
-            `- [ID:${p.id}] ${p.titre} | PRIX: ${p.prix} GNF | QUARTIER: ${p.localisation} | TYPE: ${p.exigences?.type || 'N/A'}`
+            `- [ID:${p.id}] ${p.titre} | PRIX: ${p.price} GNF | QUARTIER: ${p.localisation} | TYPE: ${p.exigences?.type || 'N/A'}`
         ).join('\n');
 
         const systemPrompt = `
@@ -75,7 +75,7 @@ class AIService {
                     { role: "system", content: systemPrompt },
                     { role: "user", content: userQuery }
                 ],
-                model: "llama3-8b-8192",
+                model: "llama-3.1-8b-instant",
                 temperature: 0.3,
             });
 

@@ -1,246 +1,57 @@
-/**
- * SEED MVP DEMO - GuineaLogement
- * ----------------------------
- * Initialise la base de données avec des données de démonstration pour le test public.
- */
-
+const { query } = require('../config/database');
 require('dotenv').config();
-const { Pool } = require('pg');
-const bcrypt = require('bcryptjs');
 
-// Support DATABASE_URL for cloud (Render) or individual vars for local
-const poolConfig = process.env.DATABASE_URL
-    ? { connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } }
-    : {
-        user: process.env.DB_USER || 'postgres',
-        host: process.env.DB_HOST || 'localhost',
-        database: process.env.DB_NAME || 'guineelogement',
-        password: process.env.DB_PASSWORD || 'postgres',
-        port: process.env.DB_PORT || 5432,
-    };
-
-const pool = new Pool(poolConfig);
+const demoListings = [{ "id": 1, "titre": "Appartement de luxe à Kipé", "description": "Magnifique appartement de 3 chambres avec vue sur mer. Salon spacieux, cuisine moderne équipée.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "7500000.00", "localisation": "Kipé, Ratoma, Conakry", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80"], "exigences": { "eau": true, "type": "apartment", "surface": 73, "chambres": 3, "electricite": true, "salles_de_bain": 2 }, "is_premium": true, "is_verified": true, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 2, "titre": "Studio moderne à Lambanyi", "description": "Studio meublé idéal pour expatrié ou jeune couple. Sécurisé, eau et électricité 24/7.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "4500000.00", "localisation": "Lambanyi, Ratoma, Conakry", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=800&q=80"], "exigences": { "eau": true, "type": "studio", "surface": 31, "chambres": 1, "electricite": true, "salles_de_bain": 1 }, "is_premium": true, "is_verified": false, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 3, "titre": "Villa avec piscine à Nongo", "description": "Grande villa familiale avec 5 chambres, jardin et piscine. Parking pour 3 voitures.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "15000000.00", "localisation": "Nongo, Ratoma, Conakry", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1613977257363-707ba9348227?w=800&q=80"], "exigences": { "eau": true, "type": "villa", "surface": 79, "chambres": 5, "electricite": true, "salles_de_bain": 4 }, "is_premium": true, "is_verified": true, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 4, "titre": "Appartement F4 à Camayenne", "description": "Appartement spacieux au centre-ville. Proche de toutes commodités.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "6000000.00", "localisation": "Camayenne, Dixinn, Conakry", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80"], "exigences": { "eau": true, "type": "apartment", "surface": 115, "chambres": 4, "electricite": true, "salles_de_bain": 2 }, "is_premium": false, "is_verified": true, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 5, "titre": "Chambre climatisée à Matoto", "description": "Chambre confortable avec climatisation et salle de bain privée.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "1200000.00", "localisation": "Matoto, Conakry", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1598928506311-c55ded91a20c?w=800&q=80"], "exigences": { "eau": true, "type": "chambre", "surface": 66, "chambres": 1, "electricite": true, "salles_de_bain": 1 }, "is_premium": false, "is_verified": false, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 6, "titre": "Duplex moderne à Sonfonia", "description": "Duplex neuf avec finitions haut de gamme. Quartier calme et résidentiel.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "9000000.00", "localisation": "Sonfonia, Ratoma, Conakry", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80"], "exigences": { "eau": true, "type": "villa", "surface": 67, "chambres": 4, "electricite": true, "salles_de_bain": 3 }, "is_premium": true, "is_verified": false, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 7, "titre": "Appartement économique à Kagbelen", "description": "Appartement propre et abordable. Idéal pour petite famille.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "2500000.00", "localisation": "Kagbelen, Dubréka", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80"], "exigences": { "eau": true, "type": "apartment", "surface": 40, "chambres": 2, "electricite": true, "salles_de_bain": 1 }, "is_premium": false, "is_verified": false, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 8, "titre": "Bureaux à louer à Kaloum", "description": "Espace professionnel au coeur du quartier des affaires.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "12000000.00", "localisation": "Kaloum, Conakry", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80"], "exigences": { "eau": true, "type": "concession", "surface": 84, "chambres": 6, "electricite": true, "salles_de_bain": 2 }, "is_premium": true, "is_verified": true, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 9, "titre": "Villa de charme à Labé", "description": "Belle villa située dans les hauteurs de Labé. Climat agréable, jardin fleuri.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "3500000.00", "localisation": "Labé", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80"], "exigences": { "eau": true, "type": "villa", "surface": 43, "chambres": 4, "electricite": true, "salles_de_bain": 2 }, "is_premium": true, "is_verified": true, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 10, "titre": "Appartement moderne à Kankan", "description": "Appartement neuf proche de l'université. Idéal pour enseignants ou professionnels.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "2000000.00", "localisation": "Kankan", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=800&q=80"], "exigences": { "eau": true, "type": "apartment", "surface": 121, "chambres": 3, "electricite": true, "salles_de_bain": 1 }, "is_premium": false, "is_verified": true, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 11, "titre": "Concession commerciale à Kindia", "description": "Emplacement stratégique pour commerce ou entrepôt à l'entrée de la ville.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "5000000.00", "localisation": "Kindia", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80"], "exigences": { "eau": true, "type": "concession", "surface": 76, "chambres": 5, "electricite": true, "salles_de_bain": 1 }, "is_premium": true, "is_verified": false, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 12, "titre": "Chambre d'hôte à Mamou", "description": "Chambre confortable pour voyageurs de passage. Proche de la gare routière.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "150000.00", "localisation": "Mamou", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80"], "exigences": { "eau": true, "type": "chambre", "surface": 95, "chambres": 1, "electricite": true, "salles_de_bain": 1 }, "is_premium": false, "is_verified": false, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 13, "titre": "Maison familiale à Faranah", "description": "Maison spacieuse avec grand terrain. Quartier calme.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "1800000.00", "localisation": "Faranah", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80"], "exigences": { "eau": true, "type": "villa", "surface": 89, "chambres": 3, "electricite": true, "salles_de_bain": 1 }, "is_premium": false, "is_verified": false, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 14, "titre": "Appartement de luxe à Kipé (Bis)", "description": "Magnifique appartement de 3 chambres avec vue sur mer. Salon spacieux, cuisine moderne équipée.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "7500000.00", "localisation": "Kipé, Ratoma, Conakry", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80"], "exigences": { "eau": true, "type": "apartment", "surface": 31, "chambres": 3, "electricite": true, "salles_de_bain": 2 }, "is_premium": true, "is_verified": true, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 15, "titre": "Studio moderne à Lambanyi (Bis)", "description": "Studio meublé idéal pour expatrié ou jeune couple. Sécurisé, eau et électricité 24/7.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "4500000.00", "localisation": "Lambanyi, Ratoma, Conakry", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=800&q=80"], "exigences": { "eau": true, "type": "studio", "surface": 54, "chambres": 1, "electricite": true, "salles_de_bain": 1 }, "is_premium": true, "is_verified": false, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 16, "titre": "Villa avec piscine à Nongo (Bis)", "description": "Grande villa familiale avec 5 chambres, jardin et piscine. Parking pour 3 voitures.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "15000000.00", "localisation": "Nongo, Ratoma, Conakry", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1613977257363-707ba9348227?w=800&q=80"], "exigences": { "eau": true, "type": "villa", "surface": 102, "chambres": 5, "electricite": true, "salles_de_bain": 4 }, "is_premium": true, "is_verified": true, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 17, "titre": "Appartement F4 à Camayenne (Bis)", "description": "Appartement spacieux au centre-ville. Proche de toutes commodités.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "6000000.00", "localisation": "Camayenne, Dixinn, Conakry", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80"], "exigences": { "eau": true, "type": "apartment", "surface": 93, "chambres": 4, "electricite": true, "salles_de_bain": 2 }, "is_premium": false, "is_verified": true, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 18, "titre": "Chambre climatisée à Matoto (Bis)", "description": "Chambre confortable avec climatisation et salle de bain privée.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "1200000.00", "localisation": "Matoto, Conakry", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1598928506311-c55ded91a20c?w=800&q=80"], "exigences": { "eau": true, "type": "chambre", "surface": 80, "chambres": 1, "electricite": true, "salles_de_bain": 1 }, "is_premium": false, "is_verified": false, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 19, "titre": "Duplex moderne à Sonfonia (Bis)", "description": "Duplex neuf avec finitions haut de gamme. Quartier calme et résidentiel.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "9000000.00", "localisation": "Sonfonia, Ratoma, Conakry", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80"], "exigences": { "eau": true, "type": "villa", "surface": 43, "chambres": 4, "electricite": true, "salles_de_bain": 3 }, "is_premium": true, "is_verified": false, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 20, "titre": "Appartement économique à Kagbelen (Bis)", "description": "Appartement propre et abordable. Idéal pour petite famille.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "2500000.00", "localisation": "Kagbelen, Dubréka", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80"], "exigences": { "eau": true, "type": "apartment", "surface": 65, "chambres": 2, "electricite": true, "salles_de_bain": 1 }, "is_premium": false, "is_verified": false, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 21, "titre": "Bureaux à louer à Kaloum (Bis)", "description": "Espace professionnel au coeur du quartier des affaires.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "12000000.00", "localisation": "Kaloum, Conakry", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80"], "exigences": { "eau": true, "type": "concession", "surface": 71, "chambres": 6, "electricite": true, "salles_de_bain": 2 }, "is_premium": true, "is_verified": true, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 22, "titre": "Villa de charme à Labé (Bis)", "description": "Belle villa située dans les hauteurs de Labé. Climat agréable, jardin fleuri.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "3500000.00", "localisation": "Labé", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80"], "exigences": { "eau": true, "type": "villa", "surface": 115, "chambres": 4, "electricite": true, "salles_de_bain": 2 }, "is_premium": true, "is_verified": true, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 23, "titre": "Appartement moderne à Kankan (Bis)", "description": "Appartement neuf proche de l'université. Idéal pour enseignants ou professionnels.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "2000000.00", "localisation": "Kankan", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=800&q=80"], "exigences": { "eau": true, "type": "apartment", "surface": 47, "chambres": 3, "electricite": true, "salles_de_bain": 1 }, "is_premium": false, "is_verified": true, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 24, "titre": "Concession commerciale à Kindia (Bis)", "description": "Emplacement stratégique pour commerce ou entrepôt à l'entrée de la ville.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "5000000.00", "localisation": "Kindia", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80"], "exigences": { "eau": true, "type": "concession", "surface": 114, "chambres": 5, "electricite": true, "salles_de_bain": 1 }, "is_premium": true, "is_verified": false, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 25, "titre": "Chambre d'hôte à Mamou (Bis)", "description": "Chambre confortable pour voyageurs de passage. Proche de la gare routière.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "150000.00", "localisation": "Mamou", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80"], "exigences": { "eau": true, "type": "chambre", "surface": 50, "chambres": 1, "electricite": true, "salles_de_bain": 1 }, "is_premium": false, "is_verified": false, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }, { "id": 26, "titre": "Maison familiale à Faranah (Bis)", "description": "Maison spacieuse avec grand terrain. Quartier calme.\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.", "price": "1800000.00", "localisation": "Faranah", "statut": "disponible", "images": ["https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80"], "exigences": { "eau": true, "type": "villa", "surface": 46, "chambres": 3, "electricite": true, "salles_de_bain": 1 }, "is_premium": false, "is_verified": false, "owner_id": 1, "created_at": "2026-03-08T21:11:36.306Z", "owner_display": "Mamadou Alpha Diallo", "owner_phone": "+224 620 11 22 33" }];
 
 async function seed() {
-    console.log('🚀 Démarrage du Seeding Démo MVP...');
-    const client = await pool.connect();
-
+    console.log('🌱 Démarrage du seed (MVP Demo)...');
     try {
-        await client.query('BEGIN');
+        // 1. Désactiver les triggers temporairement ou vider les tables
+        await query('TRUNCATE favoris, paiements, messages, logements CASCADE');
 
-        // Nettoyage rapide (optionnel, mais recommandé pour une démo propre)
-        console.log('--- Nettoyage des anciennes annonces de démo ---');
-        await client.query("DELETE FROM logements WHERE description LIKE '%Annonce de démonstration%'");
-
-        // Récupérer un propriétaire existant ou en créer un
-        let ownerRes = await client.query("SELECT id FROM users WHERE email = 'mamadou.diallo@gl.gn'");
+        // 2. S'assurer qu'un utilisateur existe pour être le propriétaire
+        const userResult = await query("SELECT id FROM users WHERE email = 'mamadou.diallo@gl.gn'");
         let ownerId;
 
-        if (ownerRes.rows.length > 0) {
-            ownerId = ownerRes.rows[0].id;
+        if (userResult.rows.length === 0) {
+            const newUser = await query(
+                "INSERT INTO users (name, email, password, role, is_verified, phone) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+                ['Mamadou Alpha Diallo', 'mamadou.diallo@gl.gn', 'hashed_pwd_here', 'proprietaire', true, '+224 620 11 22 33']
+            );
+            ownerId = newUser.rows[0].id;
         } else {
-            console.log('--- Création du compte propriétaire démo ---');
-            const pass = await bcrypt.hash('password123', 10);
-            const newOwner = await client.query(
-                "INSERT INTO users (name, email, password, role, phone) VALUES ('Mamadou Alpha Diallo', 'mamadou.diallo@gl.gn', $1, 'proprietaire', '+224 620 11 22 33') RETURNING id",
-                [pass]
-            );
-            ownerId = newOwner.rows[0].id;
+            ownerId = userResult.rows[0].id;
         }
 
-        const disclaimer = "\n\nAnnonce de démonstration pour test de la plateforme GuineaLogement.";
+        console.log(`👤 Propriétaire de démo : ID ${ownerId}`);
 
-        const demoListings = [
-            {
-                titre: "Appartement de luxe à Kipé",
-                desc: "Magnifique appartement de 3 chambres avec vue sur mer. Salon spacieux, cuisine moderne équipée." + disclaimer,
-                price: 7500000,
-                loc: "Kipé, Ratoma, Conakry",
-                type: "apartment",
-                premium: true,
-                verified: true,
-                rooms: 3,
-                baths: 2,
-                img: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80"
-            },
-            {
-                titre: "Studio moderne à Lambanyi",
-                desc: "Studio meublé idéal pour expatrié ou jeune couple. Sécurisé, eau et électricité 24/7." + disclaimer,
-                price: 4500000,
-                loc: "Lambanyi, Ratoma, Conakry",
-                type: "studio",
-                premium: true,
-                verified: false,
-                rooms: 1,
-                baths: 1,
-                img: "https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=800&q=80"
-            },
-            {
-                titre: "Villa avec piscine à Nongo",
-                desc: "Grande villa familiale avec 5 chambres, jardin et piscine. Parking pour 3 voitures." + disclaimer,
-                price: 15000000,
-                loc: "Nongo, Ratoma, Conakry",
-                type: "villa",
-                premium: true,
-                verified: true,
-                rooms: 5,
-                baths: 4,
-                img: "https://images.unsplash.com/photo-1613977257363-707ba9348227?w=800&q=80"
-            },
-            {
-                titre: "Appartement F4 à Camayenne",
-                desc: "Appartement spacieux au centre-ville. Proche de toutes commodités." + disclaimer,
-                price: 6000000,
-                loc: "Camayenne, Dixinn, Conakry",
-                type: "apartment",
-                premium: false,
-                verified: true,
-                rooms: 4,
-                baths: 2,
-                img: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80"
-            },
-            {
-                titre: "Chambre climatisée à Matoto",
-                desc: "Chambre confortable avec climatisation et salle de bain privée." + disclaimer,
-                price: 1200000,
-                loc: "Matoto, Conakry",
-                type: "chambre",
-                premium: true,
-                verified: false,
-                rooms: 1,
-                baths: 1,
-                img: "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?w=800&q=80"
-            },
-            {
-                titre: "Duplex moderne à Sonfonia",
-                desc: "Duplex neuf avec finitions haut de gamme. Quartier calme et résidentiel." + disclaimer,
-                price: 9000000,
-                loc: "Sonfonia, Ratoma, Conakry",
-                type: "villa",
-                premium: true,
-                verified: false,
-                rooms: 4,
-                baths: 3,
-                img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80"
-            },
-            {
-                titre: "Appartement économique à Kagbelen",
-                desc: "Appartement propre et abordable. Idéal pour petite famille." + disclaimer,
-                price: 2500000,
-                loc: "Kagbelen, Dubréka",
-                type: "apartment",
-                premium: false,
-                verified: false,
-                rooms: 2,
-                baths: 1,
-                img: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80"
-            },
-            {
-                titre: "Bureaux à louer à Kaloum",
-                desc: "Espace professionnel au coeur du quartier des affaires." + disclaimer,
-                price: 12000000,
-                loc: "Kaloum, Conakry",
-                type: "concession",
-                premium: true,
-                verified: true,
-                rooms: 6,
-                baths: 2,
-                img: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80"
-            },
-            {
-                titre: "Villa de charme à Labé",
-                desc: "Belle villa située dans les hauteurs de Labé. Climat agréable, jardin fleuri." + disclaimer,
-                price: 3500000,
-                loc: "Labé",
-                type: "villa",
-                premium: true,
-                verified: true,
-                rooms: 4,
-                baths: 2,
-                img: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80"
-            },
-            {
-                titre: "Appartement moderne à Kankan",
-                desc: "Appartement neuf proche de l'université. Idéal pour enseignants ou professionnels." + disclaimer,
-                price: 2000000,
-                loc: "Kankan",
-                type: "apartment",
-                premium: false,
-                verified: true,
-                rooms: 3,
-                baths: 1,
-                img: "https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=800&q=80"
-            },
-            {
-                titre: "Concession commerciale à Kindia",
-                desc: "Emplacement stratégique pour commerce ou entrepôt à l'entrée de la ville." + disclaimer,
-                price: 5000000,
-                loc: "Kindia",
-                type: "concession",
-                premium: true,
-                verified: false,
-                rooms: 5,
-                baths: 1,
-                img: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80"
-            },
-            {
-                titre: "Chambre d'hôte à Mamou",
-                desc: "Chambre confortable pour voyageurs de passage. Proche de la gare routière." + disclaimer,
-                price: 150000,
-                loc: "Mamou",
-                type: "chambre",
-                premium: false,
-                verified: false,
-                rooms: 1,
-                baths: 1,
-                img: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80"
-            },
-            {
-                titre: "Maison familiale à Faranah",
-                desc: "Maison spacieuse avec grand terrain. Quartier calme." + disclaimer,
-                price: 1800000,
-                loc: "Faranah",
-                type: "villa",
-                premium: false,
-                verified: false,
-                rooms: 3,
-                baths: 1,
-                img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80"
-            }
-        ];
-
-        // Dupliquer pour atteindre une trentaine d'annonces
-        const fullList = [...demoListings, ...demoListings.map(l => ({ ...l, titre: l.titre + " (Bis)" }))];
-
-        console.log(`--- Insertion de ${fullList.length} annonces de démo ---`);
-
-        for (const l of fullList) {
-            const exigences = {
-                type: l.type,
-                chambres: l.rooms,
-                salles_de_bain: l.baths,
-                surface: Math.floor(Math.random() * 100) + 30,
-                eau: true,
-                electricite: true
-            };
-
-            await client.query(
-                `INSERT INTO logements (titre, description, price, localisation, images, exigences, owner_id, is_premium, is_verified, statut)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'disponible')`,
-                [l.titre, l.desc, l.price, l.loc, [l.img], exigences, ownerId, l.premium, l.verified]
+        // 3. Insérer les logements
+        let insertedCount = 0;
+        for (const listing of demoListings) {
+            await query(
+                `INSERT INTO logements (titre, description, price, localisation, exigences, images, owner_id, statut, is_premium, is_verified) 
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+                [
+                    listing.titre,
+                    listing.description,
+                    listing.price,
+                    listing.localisation,
+                    JSON.stringify(listing.exigences),
+                    listing.images,
+                    ownerId,
+                    listing.statut || 'disponible',
+                    listing.is_premium || false,
+                    listing.is_verified || false
+                ]
             );
+            insertedCount++;
         }
 
-        await client.query('COMMIT');
-        console.log('✅ Seeding Démo terminé !');
-        process.exit(0);
-    } catch (err) {
-        await client.query('ROLLBACK');
-        console.error('❌ Erreur Seeding :', err.message);
-        process.exit(1);
+        console.log(`✅ Seed terminé : ${insertedCount} logements insérés.`);
+    } catch (error) {
+        console.error('❌ Erreur seed:', error);
     } finally {
-        client.release();
-        await pool.end();
+        process.exit();
     }
 }
 

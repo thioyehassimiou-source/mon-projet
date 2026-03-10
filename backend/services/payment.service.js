@@ -32,8 +32,12 @@ class PaymentService {
             const response = await axios.post(this.baseUrl, payload);
             return response.data;
         } catch (error) {
-            console.error("CinetPay Initiation Error:", error.response?.data || error.message);
-            throw new Error("Erreur lors de l'initiation du paiement via CinetPay.");
+            const errorData = error.response?.data;
+            console.error("CinetPay Initiation Error:", errorData || error.message);
+
+            // On jette une erreur plus descriptive
+            const errorMessage = errorData?.description || errorData?.message || error.message;
+            throw new Error(`CinetPay: ${errorMessage}`);
         }
     }
 
