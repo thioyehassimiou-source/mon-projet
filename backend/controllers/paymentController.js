@@ -1,37 +1,40 @@
 const { query } = require('../config/database');
-const paymentService = require('../services/payment.service');
+const landopayService = require('../services/landopay.service');
 
 exports.initiatePayment = async (req, res) => {
     const { amount, id_logement, description } = req.body;
     const userId = req.user.id;
 
     try {
-        // 1. Récupérer l'ID du propriétaire du logement (Sécurité/Traçabilité)
-        const listing = await query('SELECT owner_id FROM logements WHERE id = $1', [id_logement]);
+        // 1. Récupérer l'ID du propriétaire
+        const listing = await query('SELECT owner_id, titre FROM logements WHERE id = $1', [id_logement]);
         if (listing.rows.length === 0) {
             return res.status(404).json({ success: false, message: 'Logement non trouvé' });
         }
         const id_proprietaire = listing.rows[0].owner_id;
+        const listing_title = listing.rows[0].titre;
 
-        // 2. Créer une référence de transaction unique
-        const transaction_id = `GL-${Date.now()}-${userId}`;
+        // 2. Créer une référence unique
+        const transaction_id = `LP-${Date.now()}-${userId}`;
 
-        // 3. Préparer les données pour CinetPay
+        // 3. Préparer les données pour LandoPay
         const paymentData = {
             amount,
             transaction_id,
-            description: description || `Paiement pour logement #${id_logement}`,
-            customer_name: req.user.name.split(' ')[0],
-            customer_surname: req.user.name.split(' ')[1] || '',
+            description: description || `Réservation : ${listing_title}`,
+            customer_name: req.user.name,
             customer_email: req.user.email,
             customer_phone_number: req.user.phone || ''
         };
 
-        // 4. Initier le paiement
-        const result = await paymentService.initiatePayment(paymentData);
+        // 4. Initier le paiement via LandoPay
+        const result = await landopayService.initiatePayment(paymentData);
 
-        if (result.code === '201') {
-            // 5. Sauvegarder la transaction avec id_proprietaire
+        // On accepte soit un code 201 (standard) soit un flag success
+        if (result.success || result.code === '201' || result.status === 'success') {
+            const paymentUrl = result.payment_url || (result.data && result.data.payment_url);
+
+            // 5. Sauvegarder la transaction
             await query(
                 `INSERT INTO paiements (montant_total, commission_plateforme, montant_proprietaire, methode_paiement, statut, reference_externe, id_locataire, id_proprietaire, id_logement)
                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
@@ -40,11 +43,11 @@ exports.initiatePayment = async (req, res) => {
 
             res.status(200).json({
                 success: true,
-                payment_url: result.data.payment_url,
+                payment_url: paymentUrl,
                 transaction_id
             });
         } else {
-            res.status(400).json({ success: false, message: result.message });
+            res.status(400).json({ success: false, message: result.message || "Erreur LandoPay" });
         }
     } catch (error) {
         console.error("Payment Initiation Error:", error);
@@ -53,25 +56,23 @@ exports.initiatePayment = async (req, res) => {
 };
 
 exports.handleWebhook = async (req, res) => {
-    const { cpm_trans_id, cpm_status, cpm_site_id } = req.body;
-
-    // Sécurité supplémentaire : Vérifier que le site_id correspond
-    if (cpm_site_id !== process.env.CINETPAY_SITE_ID) {
-        console.warn(`⚠️ Tentative de webhook frauduleux (site_id incorrect): ${cpm_site_id}`);
-        return res.status(403).send('Forbidden');
-    }
+    // Adapter selon la structure réelle de LandoPay quand elle sera connue
+    // Pour l'instant on utilise des noms de champs génériques
+    const { transaction_id, status, reference } = req.body;
 
     try {
-        if (cpm_status === 'ACCEPTED') {
+        const transId = transaction_id || reference;
+
+        if (status === 'SUCCESS' || status === 'COMPLETED' || status === 'ACCEPTED') {
             await query(
                 "UPDATE paiements SET statut = 'réussi', date_paiement = NOW() WHERE reference_externe = $1",
-                [cpm_trans_id]
+                [transId]
             );
-            console.log(`✅ Paiement réussi pour la transaction: ${cpm_trans_id}`);
+            console.log(`✅ Paiement réussi : ${transId}`);
         } else {
             await query(
                 "UPDATE paiements SET statut = 'annulé' WHERE reference_externe = $1",
-                [cpm_trans_id]
+                [transId]
             );
         }
         res.status(200).send('OK');

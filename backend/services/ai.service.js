@@ -42,7 +42,19 @@ class AIService {
             return JSON.parse(completion.choices[0].message.content);
         } catch (error) {
             console.error("Extraction Error:", error.message);
-            return { type: null, quartier: null, prix_max: null };
+            // Fallback pour l'extraction si llama échoue
+            try {
+                const fallback = await this.groq.chat.completions.create({
+                    messages: [{ role: "user", content: extractionPrompt }],
+                    model: "mixtral-8x7b-32768",
+                    temperature: 0,
+                    response_format: { type: "json_object" }
+                });
+                return JSON.parse(fallback.choices[0].message.content);
+            } catch (innerError) {
+                console.error("Extraction Fallback Error:", innerError.message);
+                return { type: null, quartier: null, prix_max: null };
+            }
         }
     }
 
@@ -81,8 +93,24 @@ class AIService {
 
             return completion.choices[0]?.message?.content || "Désolé, je ne peux pas répondre pour le moment.";
         } catch (error) {
-            console.error("GROQ API Error:", error.message);
-            return "Désolé, je rencontre des difficultés techniques pour le moment. Voulez-vous voir :\n\n• Les logements à Conakry\n• Les appartements disponibles\n• Les annonces récentes ?";
+            console.error("GROQ API Error (Llama):", error.message);
+
+            // Tenter un fallback vers Mixtral
+            try {
+                console.log("🔄 Tentative de repli vers Mixtral...");
+                const fallback = await this.groq.chat.completions.create({
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        { role: "user", content: userQuery }
+                    ],
+                    model: "mixtral-8x7b-32768",
+                    temperature: 0.3,
+                });
+                return fallback.choices[0]?.message?.content;
+            } catch (innerError) {
+                console.error("GROQ API Error (Mixtral):", innerError.message);
+                return "Désolé, je rencontre des difficultés techniques pour le moment. Voulez-vous voir :\n\n• Les logements à Conakry\n• Les appartements disponibles\n• Les annonces récentes ?";
+            }
         }
     }
 }
