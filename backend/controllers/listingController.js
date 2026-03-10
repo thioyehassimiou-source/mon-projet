@@ -3,16 +3,19 @@ const { query } = require('../config/database');
 // @desc    Obtenir tous les logements avec filtres
 // @route   GET /api/logements
 exports.getListings = async (req, res) => {
-    const { price_max, localisation, type, property_type, search, q, listing_type } = req.query;
+    const { price_max, localisation, type, property_type, search, q, listing_type, city } = req.query;
     let sql = `
         SELECT l.*, u.name as owner_display, u.phone as owner_phone 
         FROM logements l 
         JOIN users u ON l.owner_id = u.id 
-        WHERE l.statut = 'disponible'`;
+        WHERE 1=1`; // Start with 1=1 to easily append AND conditions
     const params = [];
 
+    // Filter by available status (unless searching for something else, but generally we want available)
+    sql += ` AND l.statut = 'disponible'`;
+
     const finalSearch = localisation || search || q;
-    const finalType = type || property_type;
+    const finalType = type || property_type || listing_type;
 
     if (price_max) {
         params.push(price_max);
@@ -25,6 +28,10 @@ exports.getListings = async (req, res) => {
     if (finalType) {
         params.push(finalType);
         sql += ` AND l.exigences->>'type' = $${params.length}`;
+    }
+    if (city) {
+        params.push(city);
+        sql += ` AND l.localisation ILIKE $${params.length}`;
     }
 
 

@@ -33,16 +33,31 @@ exports.handleAIChat = async (req, res) => {
     const userId = req.user.id;
 
     try {
-        // 0. Vérifier la conversation (Sécurité)
-        const convCheck = await query('SELECT * FROM conversations_ia WHERE id = $1 AND id_utilisateur = $2', [id_conversation, userId]);
-        if (convCheck.rows.length === 0) {
-            return res.status(404).json({ message: "Conversation non trouvée" });
+        // 0. Gérer la conversation : créer automatiquement si id_conversation est absent
+        let convId = id_conversation;
+
+        if (!convId) {
+            // Auto-création de la conversation pour simplifier le flux frontend
+            const newConv = await query(
+                'INSERT INTO conversations_ia (id_utilisateur) VALUES ($1) RETURNING id',
+                [userId]
+            );
+            convId = newConv.rows[0].id;
+        } else {
+            // Vérifier que la conversation appartient bien à l'utilisateur (IDOR Fix)
+            const convCheck = await query(
+                'SELECT id FROM conversations_ia WHERE id = $1 AND id_utilisateur = $2',
+                [convId, userId]
+            );
+            if (convCheck.rows.length === 0) {
+                return res.status(404).json({ message: "Conversation non trouvée" });
+            }
         }
 
         // 1. Sauvegarder le message utilisateur
         await query(
             'INSERT INTO messages_ia (role, contenu, id_conversation) VALUES ($1, $2, $3)',
-            ['user', contenu, id_conversation]
+            ['user', contenu, convId]
         );
 
         // 2. IA : Extraire les critères structurés
@@ -78,7 +93,7 @@ exports.handleAIChat = async (req, res) => {
         // 5. Sauvegarder et retourner la réponse
         const savedAIMsg = await query(
             'INSERT INTO messages_ia (role, contenu, id_conversation) VALUES ($1, $2, $3) RETURNING *',
-            ['assistant', aiResponse, id_conversation]
+            ['assistant', aiResponse, convId]
         );
 
         // On ajoute les résultats structurés pour que le frontend puisse les afficher en cartes
